@@ -309,7 +309,8 @@ def verificar_p3v_realtime(bot, par, k, df_historico, is_pre_alert_window, is_la
     config = bot.config
     periodo_vwma = config.get("P3V_VWMA_PERIODO", 30) 
     
-    # *** CORREÇÃO DO BUG (image_2568bf.png) ***
+    # *** CORREÇÃO DO BUG (image_2568bf.png / image_321fe1.png) ***
+    # Precisamos de 2 velas fechadas + a vela atual + dados suficientes para VWMA
     if df_historico is None or len(df_historico) < (periodo_vwma + 2):
         return None
 
