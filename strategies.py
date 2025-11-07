@@ -24,7 +24,7 @@ def verificar_filtro_macd_rsi(df_com_rt, direcao_sinal):
         if direcao_sinal == "COMPRA":
             tendencia_alta = (macd_line > signal_line)
             histograma_crescente = (hist > hist_prev) and (hist_prev > hist_2prev)
-            cruzou_macd = (macd_line > signal_line and macd_line.iloc[-2] < signal_line.iloc[-2])
+            cruzou_macd = (macd_line > signal_line and macd.macd().iloc[-2] < macd.macd_signal().iloc[-2]) # Correção aqui
             if (tendencia_alta and histograma_crescente) or cruzou_macd:
                 return True # Permitido (MACD confirma alta)
             else:
@@ -33,7 +33,7 @@ def verificar_filtro_macd_rsi(df_com_rt, direcao_sinal):
         elif direcao_sinal == "VENDA":
             tendencia_baixa = (macd_line < signal_line)
             histograma_decrescente = (hist < hist_prev) and (hist_prev < hist_2prev)
-            cruzou_macd = (macd_line < signal_line and macd_line.iloc[-2] > signal_line.iloc[-2])
+            cruzou_macd = (macd_line < signal_line and macd.macd().iloc[-2] > macd.macd_signal().iloc[-2]) # Correção aqui
             if (tendencia_baixa and histograma_decrescente) or cruzou_macd:
                 return True # Permitido (MACD confirma baixa)
             else:
@@ -141,13 +141,11 @@ def verificar_toque_bollinger_realtime(par, k, df_historico, config):
     std_dev_configurado = config.get('BOLLINGER_STD_DEV', 2.7)
     bollinger_periodo = config.get('BOLLINGER_PERIODO', 20)
     offset_percent = config.get('BOLLINGER_OFFSET_PERCENT', 0.0001)
-    # Filtro MACD Global removido daqui
-
+    
     if df_historico is None or len(df_historico) < 101:
         return None
     try:
         low_price, high_price = float(k['l']), float(k['h'])
-        preco_atual = float(k['c'])
         
         bollinger = ta.volatility.BollingerBands(df_historico['close'], window=bollinger_periodo, window_dev=std_dev_configurado)
         bb_upper = bollinger.bollinger_hband().iloc[-1]
@@ -160,8 +158,6 @@ def verificar_toque_bollinger_realtime(par, k, df_historico, config):
         if high_price >= (bb_upper * (1 + offset_percent)) and ma_100 > bb_upper:
             direcao_sinal = "VENDA"
             
-        # Filtro MACD Global removido daqui
-
         return direcao_sinal
     except Exception:
         return None
@@ -172,8 +168,7 @@ def verificar_sr_realtime(bot, par, k, df_historico):
     toques_necessarios = config.get('SR_TOQUES_NECESSARIOS', 3)
     tolerancia = config.get('SR_TOLERANCIA_PERCENT', 0.0005)
     distancia_min = config.get('SR_DISTANCIA_MIN_TOQUES', 15)
-    # Filtro MACD Global removido daqui
-
+    
     if df_historico is None or len(df_historico) < periodo:
         return None
 
@@ -184,7 +179,6 @@ def verificar_sr_realtime(bot, par, k, df_historico):
         
         preco_high_rt = float(k['h'])
         preco_low_rt = float(k['l'])
-        preco_atual = float(k['c'])
         ts_vela_atual = int(k['T']) // 60000 
 
         direcao_sinal = None
@@ -221,8 +215,6 @@ def verificar_sr_realtime(bot, par, k, df_historico):
                         toques_sup.clear()
                         direcao_sinal = "COMPRA"
         
-        # Filtro MACD Global removido daqui
-
         return direcao_sinal
     except Exception as e:
         print(f"[{bot.username}] Erro em verificar_sr_realtime {par}: {e}")
@@ -244,8 +236,7 @@ def verificar_mhi(par, df_historico, config):
         
         usar_filtro = config.get('MHI_USE_TREND_FILTER', True)
         trend_periodo = config.get('MHI_TREND_PERIODO', 100)
-        # Filtro MACD Global removido daqui
-
+        
         if usar_filtro:
             if len(df_historico) < trend_periodo: return None
             sma_trend = ta.trend.sma_indicator(df_historico['close'], window=trend_periodo).iloc[-1]
@@ -253,8 +244,6 @@ def verificar_mhi(par, df_historico, config):
             if direcao_dominante == "COMPRA" and preco_atual < sma_trend: return None
             if direcao_dominante == "VENDA" and preco_atual > sma_trend: return None
             
-        # Filtro MACD Global removido daqui
-        
         return direcao_dominante
     except Exception as e:
         print(f"Erro em verificar_mhi {par}: {e}\n{traceback.format_exc()}")
@@ -267,7 +256,6 @@ def verificar_t5(par, df_historico, config):
         if df_historico is None or len(df_historico) < 5: return None
 
         pavio_min_ratio = config.get('T5_PAVIO_MIN_RATIO', 2.0)
-        # Filtro MACD Global removido daqui
         
         bloco_5m = df_historico.iloc[-5:]
         vela_43 = bloco_5m.iloc[-2]
@@ -300,8 +288,6 @@ def verificar_t5(par, df_historico, config):
             if (vela_43_verde and vela_44_verde) or (vela_43_vermelha and vela_44_verde):
                 direcao_t5 = "VENDA"
                 
-        # Filtro MACD Global removido daqui
-        
         return direcao_t5
     except Exception as e:
         print(f"Erro em verificar_t5 {par}: {e}\n{traceback.format_exc()}")
@@ -322,10 +308,8 @@ def verificar_p3v_realtime(bot, par, k, df_historico, is_pre_alert_window, is_la
     """
     config = bot.config
     periodo_vwma = config.get("P3V_VWMA_PERIODO", 30) 
-    # Filtro MACD Global removido daqui
     
     # *** CORREÇÃO DO BUG (image_2568bf.png) ***
-    # Precisamos de 2 velas fechadas + a vela atual + dados suficientes para VWMA
     if df_historico is None or len(df_historico) < (periodo_vwma + 2):
         return None
 
@@ -383,10 +367,8 @@ def verificar_p3v_realtime(bot, par, k, df_historico, is_pre_alert_window, is_la
                 preco_open < vwma_atual and 
                 preco_close < vwma_atual):  
                 direcao_sinal = "VENDA"
-
-        # 6. Filtro MACD Global (REMOVIDO)
-
-        # 7. Armar o Sinal (para o bot_manager pegar na janela de 20s ou 10s)
+        
+        # 6. Armar o Sinal (para o bot_manager pegar na janela de 20s ou 10s)
         if direcao_sinal:
             with bot.p3v_lock: 
                 bot.p3v_potencial_sinal[par] = { 
@@ -414,6 +396,7 @@ def verificar_breakout_sma(bot, par, k, df_historico, is_pre_alert_window, is_la
     """
     Estratégia Breakout SMA: Vela rompe SMAs 5 e 7 com corpo 2x maior que a média.
     Modifica 'bot.breakout_potencial_sinal'.
+    *** CORRIGIDO: AGORA SÓ PARA VENDA ***
     """
     config = bot.config
     sma_curta_p = config.get("BREAKOUT_SMA_CURTA", 5)
@@ -430,7 +413,7 @@ def verificar_breakout_sma(bot, par, k, df_historico, is_pre_alert_window, is_la
         preco_close = float(k['c'])
         corpo_vela_rt = abs(preco_close - preco_open)
         
-        vela_rt_verde = preco_close > preco_open
+        # vela_rt_verde = preco_close > preco_open <-- REMOVIDO
         vela_rt_vermelha = preco_close < preco_open
 
         # 2. Dados Históricos (para médias)
@@ -456,20 +439,18 @@ def verificar_breakout_sma(bot, par, k, df_historico, is_pre_alert_window, is_la
         # 3. Checar Padrões e Filtros
         direcao_sinal = None
 
-        # Filtro de Tamanho: Vela RT deve ser 2x maior que a média
-        if corpo_vela_rt > (media_corpo * body_mult):
+        # --- CORREÇÃO: LÓGICA DE COMPRA REMOVIDA ---
+        # A estratégia agora só checa para VENDA
+        
+        # Padrão de VENDA: Vela Vermelha, corpo 2x+, fecha abaixo das médias
+        if (vela_rt_vermelha and 
+            (corpo_vela_rt > (media_corpo * body_mult)) and 
+            (preco_close < sma_curta) and 
+            (preco_close < sma_longa)):
             
-            # Padrão de COMPRA: Vela Verde fecha acima de ambas as médias
-            if vela_rt_verde and (preco_close > sma_curta) and (preco_close > sma_longa):
-                direcao_sinal = "COMPRA"
-                
-            # Padrão de VENDA: Vela Vermelha fecha abaixo de ambas as médias
-            elif vela_rt_vermelha and (preco_close < sma_curta) and (preco_close < sma_longa):
-                direcao_sinal = "VENDA"
+            direcao_sinal = "VENDA"
         
-        # 4. Filtro MACD Global (REMOVIDO)
-        
-        # 5. Armar o Sinal (para o bot_manager pegar na janela de 20s ou 12s)
+        # 4. Armar o Sinal (para o bot_manager pegar na janela de 20s ou 12s)
         if direcao_sinal:
             with bot.breakout_lock: 
                 bot.breakout_potencial_sinal[par] = { 
