@@ -135,7 +135,7 @@ def verificar_rsi_reentry_realtime(bot, par, k, df_historico, is_last_10_seconds
         return None
 
 def verificar_toque_bollinger_realtime(par, k, df_historico, config):
-    std_dev_configurado = config.get('BOLLINGE_STD_DEV', 2.7)
+    std_dev_configurado = config.get('BOLLINGER_STD_DEV', 2.7)
     bollinger_periodo = config.get('BOLLINGER_PERIODO', 20)
     offset_percent = config.get('BOLLINGER_OFFSET_PERCENT', 0.0001)
     
@@ -306,7 +306,7 @@ def verificar_p3v_realtime(bot, par, k, df_historico, is_pre_alert_window, is_la
     config = bot.config
     periodo_vwma = config.get("P3V_VWMA_PERIODO", 30) 
     
-    # *** CORREÇÃO DO BUG (image_321fe1.png) ***
+    # *** CORREÇÃO DO BUG (image_321fe1.png / image_66629c.png) ***
     if df_historico is None or len(df_historico) < (periodo_vwma + 2):
         return None
 
@@ -400,7 +400,7 @@ def verificar_breakout_sma(bot, par, k, df_historico, is_pre_alert_window, is_la
     body_mult = config.get("BREAKOUT_SMA_BODY_MULT", 2.0)
     avg_period = config.get("BREAKOUT_SMA_AVG_PERIOD", 20)
     
-    # +2 para garantir que temos a vela T-1
+    # +2 para garantir que temos a vela T-1 e T-0
     if df_historico is None or len(df_historico) < (avg_period + 2):
         return None
 
@@ -409,6 +409,8 @@ def verificar_breakout_sma(bot, par, k, df_historico, is_pre_alert_window, is_la
         preco_open_rt = float(k['o'])
         preco_close_rt = float(k['c'])
         corpo_vela_rt = abs(preco_close_rt - preco_open_rt)
+        
+        # vela_rt_verde = preco_close > preco_open <-- REMOVIDO
         vela_rt_vermelha = preco_close_rt < preco_open_rt
 
         # 2. Dados Históricos
