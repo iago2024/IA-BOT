@@ -1,4 +1,4 @@
-﻿# bot_manager.py
+# bot_manager.py
 import threading
 import json
 import pandas as pd
@@ -37,12 +37,14 @@ class BotManager:
         self.sr_niveis = {}
         self.mhi_manual_search_assets = set()
         
+        # --- Variáveis de Estatísticas ---
         self.vitorias_diretas = 0
         self.vitorias_1_protecao = 0
         self.vitorias_2_protecoes = 0
         self.derrotas_do_dia = 0
         self.historico_resultados = []
         self.estatisticas_estrategia = {}
+        self.ultimo_reset_diario = datetime.now().date() # <-- NOVO: RASTREADOR DE DATA
 
         # --- Locks ---
         self.historico_lock = threading.Lock()
@@ -57,7 +59,7 @@ class BotManager:
         self.sr_lock = threading.Lock()
         self.p3v_lock = threading.Lock() 
         self.breakout_lock = threading.Lock()
-        self.pre_alerta_lock = threading.Lock() # <-- CORREÇÃO: ESTA LINHA ESTAVA FALTANDO
+        self.pre_alerta_lock = threading.Lock()
 
         
         print(f"[{self.username}] Instância do BotManager criada.")
@@ -71,6 +73,7 @@ class BotManager:
         threading.Thread(target=self.processar_fila_de_resultados, daemon=True).start()
         threading.Thread(target=self.news_worker, daemon=True).start()
         threading.Thread(target=self.limpar_sinais_antigos, daemon=True).start()
+        threading.Thread(target=self.reset_worker_diario, daemon=True).start() # <-- NOVO: INICIA O TIMER DO RESET
 
     def iniciar_ativos_da_config(self):
         ativos_para_iniciar = self.config.get("ATIVOS", [])
@@ -686,3 +689,50 @@ class BotManager:
             except Exception as e:
                 print(f"[{self.username}] Erro no news_worker: {e}")
             time_sleep.sleep(10)
+
+    # --- NOVAS FUNÇÕES DE RESET DIÁRIO ---
+
+    def _resetar_estatisticas_diarias_core(self):
+        """
+        Função interna que ZERA as variáveis.
+        IMPORTANTE: Esta função DEVE ser chamada DE DENTRO do self.stats_lock.
+        """
+        print(f"[{self.username}] 🌅 Zerando estatísticas diárias (00:00)...")
+        self.vitorias_diretas = 0
+        self.vitorias_1_protecao = 0
+        self.vitorias_2_protecoes = 0
+        self.derrotas_do_dia = 0
+        self.historico_resultados.clear() # Limpa a lista de resultados
+        self.estatisticas_estrategia.clear() # Limpa as estatísticas por estratégia
+        self.ultimo_reset_diario = datetime.now().date()
+
+    def reset_worker_diario(self):
+        """
+        Thread que checa a cada 5 minutos se a data mudou.
+        Se mudou, zera as estatísticas.
+        """
+        print(f"[{self.username}] Worker de reset diário (00:00) iniciado.")
+        while self.robo_ativo:
+            try:
+                agora = datetime.now()
+                hoje = agora.date()
+                
+                precisa_resetar = False
+                with self.stats_lock:
+                    if self.ultimo_reset_diario < hoje:
+                        # Já passou da meia-noite E ainda não resetamos hoje
+                        precisa_resetar = True
+                        self._resetar_estatisticas_diarias_core() # Zera dentro do lock
+
+                if precisa_resetar:
+                    # Fora do lock, publica as atualizações
+                    print(f"[{self.username}] Reset concluído. Publicando atualizações.")
+                    self.publish_stats_to_web() # Envia os '0' para o site
+                    self._enviar_mensagem_telegram("📊 Estatísticas diárias zeradas. Bom dia e boas operações!")
+                
+                # Checa a cada 5 minutos (300 segundos)
+                time_sleep.sleep(300) 
+
+            except Exception as e:
+                print(f"[{self.username}] Erro no reset_worker_diario: {e}")
+                time_sleep.sleep(300) # Espera 5 min se der erro
