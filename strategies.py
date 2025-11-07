@@ -392,7 +392,7 @@ def verificar_p3v_realtime(bot, par, k, df_historico, is_pre_alert_window, is_la
 def verificar_breakout_sma(bot, par, k, df_historico, is_pre_alert_window, is_last_12_seconds):
     """
     Estratégia Breakout SMA: Apenas VENDA.
-    Checa se a vela T-1 estava ACIMA e a T-0 (RT) está ABAIXO (ROMPEU).
+    Checa se a vela ABRIU ACIMA e FECHOU ABAIXO (ROMPEU).
     """
     config = bot.config
     sma_curta_p = config.get("BREAKOUT_SMA_CURTA", 5)
@@ -410,21 +410,12 @@ def verificar_breakout_sma(bot, par, k, df_historico, is_pre_alert_window, is_la
         preco_close_rt = float(k['c'])
         corpo_vela_rt = abs(preco_close_rt - preco_open_rt)
         
-        # vela_rt_verde = preco_close > preco_open <-- REMOVIDO
         vela_rt_vermelha = preco_close_rt < preco_open_rt
 
         # 2. Dados Históricos
         df_temp = df_historico.copy()
         
-        # 2a. Obter dados da vela ANTERIOR (T-1)
-        vela_anterior = df_temp.iloc[-1]
-        preco_close_prev = vela_anterior['close']
-        
-        # 2b. Calcular SMAs da vela ANTERIOR (T-1)
-        sma_curta_prev = ta.trend.sma_indicator(df_temp['close'], window=sma_curta_p).iloc[-1]
-        sma_longa_prev = ta.trend.sma_indicator(df_temp['close'], window=sma_longa_p).iloc[-1]
-
-        # 2c. Calcular SMAs da vela ATUAL (T-0)
+        # 2a. Calcular SMAs da vela ATUAL (T-0)
         ts_atual = pd.to_datetime(k['T'], unit='ms')
         vela_atual_rt_dados = {
             'open': preco_open_rt, 'high': float(k['h']), 'low': float(k['l']),
@@ -436,25 +427,25 @@ def verificar_breakout_sma(bot, par, k, df_historico, is_pre_alert_window, is_la
         sma_curta_rt = ta.trend.sma_indicator(df_com_rt['close'], window=sma_curta_p).iloc[-1]
         sma_longa_rt = ta.trend.sma_indicator(df_com_rt['close'], window=sma_longa_p).iloc[-1]
         
-        # 2d. Calcular média do corpo
+        # 2b. Calcular média do corpo (usando dados T-1)
         corpos_historicos = abs(df_temp['close'] - df_temp['open'])
         media_corpo = corpos_historicos.rolling(window=avg_period).mean().iloc[-1]
 
         # 3. Checar Padrões e Filtros
         direcao_sinal = None
         
-        # --- CORREÇÃO (image_656357.png): Lógica de ROMPIMENTO ---
+        # --- CORREÇÃO (image_84d399.png): Lógica de ROMPIMENTO ---
         
         # Padrão de VENDA: 
         # 1. Vela RT é Vermelha
         # 2. Vela RT tem corpo 2x+
-        # 3. Vela RT (close) está ABAIXO de AMBAS as médias RT
-        # 4. Vela ANTERIOR (close) estava ACIMA de PELO MENOS UMA das médias anteriores
+        # 3. Vela RT ABRIU (open) ACIMA de pelo menos uma das médias
+        # 4. Vela RT FECHOU (close) ABAIXO de AMBAS as médias
         
         if (vela_rt_vermelha and 
             (corpo_vela_rt > (media_corpo * body_mult)) and 
-            (preco_close_rt < sma_curta_rt and preco_close_rt < sma_longa_rt) and
-            (preco_close_prev > sma_curta_prev or preco_close_prev > sma_longa_prev)):
+            (preco_open_rt > sma_curta_rt or preco_open_rt > sma_longa_rt) and
+            (preco_close_rt < sma_curta_rt and preco_close_rt < sma_longa_rt)):
             
             direcao_sinal = "VENDA"
         
