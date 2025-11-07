@@ -201,8 +201,16 @@ def manual_check_mhi_t5_api():
 
 if __name__ == '__main__':
     try:
-        # Em produção, use um servidor WSGI real em vez do app.run()
-        threading.Thread(target=lambda: app.run(host="0.0.0.0", port=5000, debug=False, use_reloader=False), daemon=True).start()
+        port = int(os.environ.get("PORT", 5000))  # <- pega a porta correta do Render
+        threading.Thread(
+            target=lambda: app.run(
+                host="0.0.0.0",
+                port=port,
+                debug=False,
+                use_reloader=False
+            ),
+            daemon=True
+        ).start()
         print("\n🔥 Aguardando logins de usuários no painel...\nDigite 'sair' para finalizar.")
         while True:
             if input("").strip().lower() == "sair": break
