@@ -4,6 +4,7 @@ requests
 ta
 websocket-client
 numpy
+gunicorn==21.2.0
 selenium
 sseclient-py
 webdriver-manager
