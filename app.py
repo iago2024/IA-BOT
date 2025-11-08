@@ -199,6 +199,17 @@ def manual_check_mhi_t5_api():
     if not u: return jsonify({"status": "error"}), 401
     return jsonify(b.trigger_manual_mhi_t5(TODOS_OS_ATIVOS_DISPONIVEIS))
 
+from flask import Flask
+import os
+
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return "✅ Painel online e rodando no Render 24/7!"
+
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 5000))  # Porta automática do Render
     app.run(host="0.0.0.0", port=port, debug=False)
+
+
