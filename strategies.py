@@ -43,11 +43,11 @@ def verificar_filtro_macd_rsi(df_com_rt, direcao_sinal):
     except Exception:
         return False # Bloqueia em caso de erro
 
-# Assinatura atualizada para aceitar o flag de tempo do bot_manager
-def verificar_rsi_reentry_realtime(bot, par, k, df_historico, is_last_10_seconds):
+# --- [ESTRATÉGIA RSI - LÓGICA DE CRUZAMENTO E FILTRO DE CONFLITO CORRIGIDOS] ---
+def verificar_rsi_reentry_realtime(bot, par, k, df_historico, is_last_20s_window):
     """
     Verifica RSI. Arma o sinal se a lógica for válida.
-    O bot_manager envia na janela de 10s.
+    O bot_manager envia na janela de 20s.
     """
     config = bot.config
     rsi_p = config.get('RSI_PERIODO', 14)
@@ -56,6 +56,7 @@ def verificar_rsi_reentry_realtime(bot, par, k, df_historico, is_last_10_seconds
     confianca_rsi = config.get('CONFIANCA_RSI', 0.85)
     usar_filtro_macd_rsi = config.get('RSI_USE_MACD_FILTER', False) 
 
+    # Precisa de +2 velas (T-1, T-2) para o filtro P3V
     if df_historico is None or len(df_historico) < rsi_p + 3:
         return None
 
@@ -76,56 +77,73 @@ def verificar_rsi_reentry_realtime(bot, par, k, df_historico, is_last_10_seconds
 
         rsi_series = ta.momentum.RSIIndicator(df_com_rt['close'], window=rsi_p).rsi()
         if len(rsi_series) < 3: return None
+        
+        # --- CORREÇÃO DO BUG (image_90fb99.png) ---
+        # Compara o tick ATUAL (iloc[-1]) com o tick ANTERIOR (iloc[-2])
         rsi_atual = rsi_series.iloc[-1]
-        rsi_anterior_fechada = rsi_series.iloc[-2]
+        rsi_tick_anterior = rsi_series.iloc[-2]
+        # --- FIM DA CORREÇÃO ---
 
         with bot.rsi_lock:
-            if par not in bot.rsi_estado_anterior:
-                bot.rsi_estado_anterior[par] = {
-                    'rsi_anterior_fechada': rsi_anterior_fechada,
-                    'timestamp': datetime.now()
-                }
-            
-            rsi_fechada_armazenada = bot.rsi_estado_anterior[par]['rsi_anterior_fechada']
-
-            if rsi_anterior_fechada != rsi_fechada_armazenada:
-                bot.rsi_estado_anterior[par]['rsi_anterior_fechada'] = rsi_anterior_fechada
-                rsi_fechada_armazenada = rsi_anterior_fechada
-
             sinal_armado = False
             direcao_sinal = None
             motivo_sinal = ""
             confianca_final = confianca_rsi
-
+            
+            # --- LÓGICA DE CRUZAMENTO (CORRIGIDA) ---
             # --- COMPRA ---
-            if (rsi_fechada_armazenada < rsi_li and rsi_atual > rsi_li):
+            if (rsi_tick_anterior < rsi_li and rsi_atual > rsi_li):
                 if vela_verde:
                     direcao_sinal = "COMPRA"
                     motivo_sinal = "RSI cruzou sobrevenda"
             
             # --- VENDA ---
-            elif (rsi_fechada_armazenada > rsi_ls and rsi_atual < rsi_ls):
+            elif (rsi_tick_anterior > rsi_ls and rsi_atual < rsi_ls):
                 if vela_vermelha:
                     direcao_sinal = "VENDA"
                     motivo_sinal = "RSI cruzou sobrecompra"
 
+            # --- NOVO FILTRO DE CONFLITO P3V ---
             if direcao_sinal:
+                # Pega as velas T-2 e T-1
+                vela_1 = df_historico.iloc[-2]
+                vela_2 = df_historico.iloc[-1]
+                
+                # Checa padrões P3V
+                padrao_p3v_compra_ativo = (vela_1['close'] > vela_1['open']) and (vela_2['close'] < vela_2['open']) and vela_verde
+                padrao_p3v_venda_ativo = (vela_1['close'] < vela_1['open']) and (vela_2['close'] > vela_2['open']) and vela_vermelha
+
+                if direcao_sinal == "COMPRA" and padrao_p3v_venda_ativo:
+                    print(f"[{bot.username}] SINAL RSI COMPRA BLOQUEADO: Conflito com Padrão P3V de Venda.")
+                    sinal_armado = False
+                elif direcao_sinal == "VENDA" and padrao_p3v_compra_ativo:
+                    print(f"[{bot.username}] SINAL RSI VENDA BLOQUEADO: Conflito com Padrão P3V de Compra.")
+                    sinal_armado = False
+                else:
+                    sinal_armado = True # Sem conflito
+            # --- FIM DO FILTRO DE CONFLITO ---
+
+            # Se passou no filtro de conflito, checa o filtro MACD (se estiver ligado)
+            if sinal_armado:
                 if usar_filtro_macd_rsi:
                     if verificar_filtro_macd_rsi(df_com_rt, direcao_sinal):
                         sinal_armado = True
                         motivo_sinal += " + MACD OK"
                         confianca_final = round(confianca_rsi + 0.06, 2)
                     else:
-                        sinal_armado = False 
+                        sinal_armado = False # Bloqueado pelo filtro MACD
                 else:
-                    sinal_armado = True 
+                    sinal_armado = True # Filtro MACD desligado
             
+            # Armazena ou remove o sinal potencial
             if sinal_armado:
-                bot.rsi_potencial_sinal[par] = {
-                    'direcao': direcao_sinal,
-                    'confianca': confianca_final,
-                    'motivo': motivo_sinal
-                }
+                # Só arma o sinal se estivermos na janela correta (20s)
+                if is_last_20s_window:
+                    bot.rsi_potencial_sinal[par] = {
+                        'direcao': direcao_sinal,
+                        'confianca': confianca_final,
+                        'motivo': motivo_sinal
+                    }
             else:
                 bot.rsi_potencial_sinal.pop(par, None)
                 
