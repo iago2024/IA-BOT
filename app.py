@@ -222,8 +222,13 @@ def manual_check_mhi_t5_api():
     return jsonify(b.trigger_manual_mhi_t5(TODOS_OS_ATIVOS_DISPONIVEIS))
 
 
-# ✅ Final correto para Render e execução local
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000)
+    from flask import Flask
+    import os
+
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
+
+
 
 
