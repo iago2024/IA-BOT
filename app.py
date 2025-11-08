@@ -223,11 +223,14 @@ def manual_check_mhi_t5_api():
 
 
 if __name__ == '__main__':
-    from flask import Flask
     import os
+    from waitress import serve  # Servidor estável de produção
 
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    print(f"🔥 Servidor iniciado na porta {port}")
+    serve(app, host="0.0.0.0", port=port)
+
+
 
 
 
