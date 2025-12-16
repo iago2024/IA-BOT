@@ -7,10 +7,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        :root { --primary: #ff4444; --primary-dark: #cc0000; --primary-glow: rgba(255, 68, 68, 0.3); --success: #00ff88; --danger: #ff4444; --warning: #ffaa00; --dark: #0a0a0a; --darker: #000000; --light: #ffffff; --gray: #888888; --dark-gray: #333333; --card-bg: rgba(20, 20, 20, 0.9); --glass: rgba(255, 255, 255, 0.1); --border-glow: rgba(255, 68, 68, 0.5); }
+        :root { --primary: #ff4444; --primary-dark: #cc0000; --primary-glow: rgba(255, 68, 68, 0.3); --success: #00ff88; --danger: #ff4444; --warning: #ffaa00; --info: #00aaff; --dark: #0a0a0a; --darker: #000000; --light: #ffffff; --gray: #888888; --dark-gray: #333333; --card-bg: rgba(20, 20, 20, 0.9); --glass: rgba(255, 255, 255, 0.1); --border-glow: rgba(255, 68, 68, 0.5); }
         body { background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%); color: var(--light); min-height: 100vh; overflow-x: hidden; position: relative; }
         body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 20% 80%, rgba(255, 68, 68, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 68, 68, 0.05) 0%, transparent 50%), radial-gradient(circle at 40% 40%, rgba(255, 68, 68, 0.07) 0%, transparent 50%); pointer-events: none; z-index: -1; }
         .container { max-width: 1800px; margin: 0 auto; padding: 20px; }
+        
+        /* HEADER */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding: 20px 25px; background: var(--card-bg); border-radius: 20px; border: 1px solid var(--glass); box-shadow: 0 8px 32px rgba(255, 68, 68, 0.1); position: relative; overflow: hidden; }
         .header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--primary), transparent); animation: headerGlow 3s ease-in-out infinite; }
         @keyframes headerGlow { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
@@ -22,8 +24,19 @@
         .user-info i { color: var(--primary); }
         .logout-btn { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; }
         .logout-btn:hover { background: var(--primary-dark); transform: translateY(-2px); }
-        .stats { display: flex; gap: 15px; flex-wrap: wrap; }
-        .stat-card { background: linear-gradient(135deg, rgba(30, 30, 30, 0.9) 0%, rgba(10, 10, 10, 0.9) 100%); padding: 20px; border-radius: 15px; text-align: center; backdrop-filter: blur(10px); border: 1px solid var(--glass); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); transition: all 0.3s ease; position: relative; overflow: hidden; min-width: 130px; }
+
+        /* ABAS / TABS */
+        .tabs-container { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; flex-wrap: wrap; }
+        .tab-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass); color: var(--gray); padding: 12px 25px; border-radius: 30px; cursor: pointer; font-size: 1rem; font-weight: 600; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; }
+        .tab-btn:hover { background: rgba(255, 255, 255, 0.1); color: var(--light); transform: translateY(-2px); }
+        .tab-btn.active { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border-color: var(--primary); box-shadow: 0 5px 15px var(--primary-glow); }
+        .tab-content { display: none; animation: fadeInTab 0.5s ease; width: 100%; }
+        .tab-content.active { display: block; }
+        @keyframes fadeInTab { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* STATS */
+        .stats { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin-bottom: 25px; }
+        .stat-card { background: linear-gradient(135deg, rgba(30, 30, 30, 0.9) 0%, rgba(10, 10, 10, 0.9) 100%); padding: 20px; border-radius: 15px; text-align: center; backdrop-filter: blur(10px); border: 1px solid var(--glass); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3); transition: all 0.3s ease; position: relative; overflow: hidden; min-width: 130px; flex: 1; max-width: 200px; }
         .stat-card::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255, 68, 68, 0.1), transparent); transition: left 0.5s ease; }
         .stat-card:hover::before { left: 100%; }
         .stat-card:hover { transform: translateY(-5px); box-shadow: 0 12px 40px rgba(255, 68, 68, 0.2); border-color: var(--primary); }
@@ -31,11 +44,16 @@
         .stat-label { font-size: 0.8rem; color: var(--gray); font-weight: 600; }
         .win { color: var(--success); }
         .loss { color: var(--danger); }
-        .main-content { display: grid; grid-template-columns: 1fr 500px; gap: 25px; }
-        .signals-section { background: var(--card-bg); border-radius: 20px; padding: 30px; backdrop-filter: blur(10px); border: 1px solid var(--glass); box-shadow: 0 8px 32px rgba(255, 68, 68, 0.1); position: relative; }
+
+        /* LAYOUT GERAL */
+        .main-content { display: block; width: 100%; } 
+        .signals-section { background: var(--card-bg); border-radius: 20px; padding: 30px; backdrop-filter: blur(10px); border: 1px solid var(--glass); box-shadow: 0 8px 32px rgba(255, 68, 68, 0.1); position: relative; width: 100%; max-width: 1000px; margin: 0 auto 25px auto; }
         .signals-section::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--primary), transparent); }
+        .widgets-section { width: 100%; max-width: 1000px; margin: 0 auto; }
         .section-title { font-size: 1.5rem; margin-bottom: 25px; display: flex; align-items: center; gap: 12px; color: var(--light); text-shadow: 0 0 10px rgba(255, 255, 255, 0.1); }
         .section-title i { color: var(--primary); text-shadow: 0 0 15px var(--primary-glow); }
+        
+        /* SINAIS */
         .signal-list { display: flex; flex-direction: column; gap: 18px; max-height: 650px; overflow-y: auto; padding-right: 10px; }
         .signal-list::-webkit-scrollbar { width: 8px; }
         .signal-list::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
@@ -56,11 +74,13 @@
         .signal-meta > div { display: flex; align-items: center; gap: 8px; }
         .confidence { color: var(--warning); font-weight: 600; }
         .signal-text { margin-top: 15px; font-size: 0.95rem; line-height: 1.6; color: var(--light); background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 10px; border-left: 3px solid var(--primary); }
-        .widgets-section { background: var(--card-bg); border-radius: 20px; padding: 30px; backdrop-filter: blur(10px); border: 1px solid var(--glass); box-shadow: 0 8px 32px rgba(255, 68, 68, 0.1); position: relative; }
-        .widgets-section::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--primary), transparent); }
+        
+        /* WIDGETS */
         .widget-container { background: rgba(10, 10, 10, 0.7); border-radius: 15px; padding: 20px; border: 1px solid var(--glass); margin-bottom: 25px; }
         .widget-title { font-size: 1.15rem; margin-bottom: 15px; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+        
         .strategy-controls { display: flex; flex-direction: column; gap: 12px; }
+        .strategy-controls-full-width { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
         .strategy-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(255, 255, 255, 0.05); border-radius: 10px; border: 1px solid var(--glass); transition: background 0.3s ease; }
         .strategy-row:hover { background: rgba(255, 255, 255, 0.1); }
         .strategy-name { font-weight: 600; color: var(--light); }
@@ -70,61 +90,112 @@
         .toggle-slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .toggle-slider { background-color: var(--success); }
         input:checked + .toggle-slider:before { transform: translateX(26px); }
+        
         .settings-controls { display: flex; flex-direction: column; gap: 15px; }
         .setting-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
         .setting-row label { font-weight: 600; color: var(--gray); font-size: 0.9rem; }
         .setting-input { width: 80px; padding: 8px; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--glass); border-radius: 8px; color: var(--light); text-align: center; font-weight: 600; }
         .setting-input:focus { outline: none; border-color: var(--primary); }
         .save-btn { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border: none; padding: 10px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; margin-top: 10px; }
-        .save-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px var(--primary-glow); }
-        .management-info { display: flex; flex-direction: column; gap: 12px; color: var(--light); }
-        .mgmt-row { display: flex; justify-content: space-between; font-size: 1rem; padding: 10px; background: rgba(255, 255, 255, 0.05); border-radius: 8px; }
-        .mgmt-row span:first-child { color: var(--gray); }
-        .mgmt-row span:last-child { font-weight: 700; color: var(--warning); }
-        .asset-controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; }
-        .asset-btn { padding: 10px; border-radius: 8px; background: rgba(255, 255, 255, 0.1); color: var(--light); cursor: pointer; transition: all 0.3s ease; font-weight: 600; font-size: 0.9rem; border: 1px solid var(--glass); }
-        .asset-btn.active { background: var(--success); color: #000; border-color: var(--success); }
-        .asset-btn:hover:not(.active) { transform: translateY(-2px); background: rgba(255, 255, 255, 0.2); }
+        
+        /* GESTÃO */
+        .management-info { display: flex; flex-direction: column; gap: 15px; color: var(--light); }
+        .management-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .management-grid-full { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
+        .management-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .calc-btn { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 10px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; font-size: 0.9rem; }
+        .calc-btn.soros { background: var(--warning); color: var(--darker); }
+        .calc-btn.martingale { background: var(--primary); color: white; } 
+        #mgmtResult { margin-top: 20px; background: rgba(0, 0, 0, 0.3); padding: 15px; border-radius: 10px; border-left: 3px solid var(--primary); display: none; }
+        #mgmtResultList { list-style: none; padding: 0; }
+        #mgmtResultList li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--glass); }
+        
+        /* GERENCIADOR OPERACIONAL */
+        .management-ops { text-align: center; }
+        .display-area { margin-bottom: 20px; }
+        .display-area h4 { color: var(--gray); font-weight: normal; font-size: 1rem; }
+        .valor-entrada { color: var(--warning); font-size: 2.5rem; font-weight: bold; display: block; margin-top: 5px; }
+        .display-stats { display: flex; justify-content: space-around; margin-bottom: 25px; color: var(--light); }
+        .display-stats div { flex: 1; }
+        .display-stats strong { color: var(--gray); font-size: 0.9rem; display: block; }
+        .display-stats span { font-size: 1.2rem; }
+        .action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .action-buttons button { padding: 15px; border: none; border-radius: 10px; font-size: 1.2rem; font-weight: bold; cursor: pointer; transition: all 0.3s; }
+        .action-buttons button:disabled { background: var(--dark-gray) !important; color: var(--gray); cursor: not-allowed; }
+        .btn-start { background: var(--primary); color: var(--light); border: none; padding: 12px; width: 100%; border-radius: 10px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: background 0.3s; margin-bottom: 20px; }
+        .btn-win { background: var(--success); color: var(--darker); }
+        .btn-loss { background: var(--danger); color: var(--light); }
+        .profit { color: var(--success); }
+
+        /* ATIVOS */
+        .assets-header-container { background: var(--card-bg); border-radius: 20px; border: 1px solid var(--border-glow); padding: 25px; margin-bottom: 25px; box-shadow: 0 8px 32px var(--primary-glow); width: 100%; max-width: 1000px; margin: 0 auto 25px auto; }
+        .asset-controls { display: grid; grid-template-columns: repeat(6, 1fr); gap: 15px; margin-top: 15px; }
+        .asset-btn { padding: 12px; border-radius: 10px; background: rgba(255, 255, 255, 0.1); color: var(--light); cursor: pointer; transition: all 0.3s ease; font-weight: 600; font-size: 1rem; border: 1px solid var(--glass); text-align: center; }
+        .asset-btn.active { background: var(--success); color: #000; border-color: var(--success); box-shadow: 0 0 15px var(--success); }
+        .asset-btn:hover:not(.active) { transform: translateY(-2px); background: rgba(255, 255, 255, 0.2); border-color: var(--primary); }
+
         .news-button { display: inline-block; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: 600; text-align: center; transition: all 0.3s ease; border: none; cursor: pointer; width: 100%; margin-bottom: 15px; }
-        .news-button:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255, 68, 68, 0.3); }
         .telegram-tutorial { font-size: 0.85rem; color: var(--gray); margin-top: 15px; line-height: 1.6; background: rgba(0, 0, 0, 0.2); padding: 15px; border-radius: 8px; border-left: 3px solid #0088cc; }
-        .telegram-tutorial ol { padding-left: 20px; margin-top: 10px; }
-        .telegram-tutorial li { margin-bottom: 5px; }
-        .telegram-tutorial code { background: rgba(255, 255, 255, 0.1); padding: 2px 5px; border-radius: 4px; color: var(--light); }
+        
         .footer { text-align: center; margin-top: 40px; padding: 30px; border-top: 1px solid var(--glass); color: var(--gray); font-size: 0.9rem; background: var(--card-bg); border-radius: 20px; border: 1px solid var(--glass); }
-        .footer::before { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--primary), transparent); }
         .pulse { animation: pulseGlow 2s infinite; }
         @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 20px rgba(255, 68, 68, 0.3); } 50% { box-shadow: 0 0 30px rgba(255, 68, 68, 0.6); } }
         .live-indicator { display: inline-block; width: 8px; height: 8px; background: var(--success); border-radius: 50%; margin-right: 8px; animation: blink 2s infinite; }
         @keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0.3; } }
+        
+        /* NOVO BOTÃO MHI (AZUL ESCURO) */
+        .btn-mhi-search {
+            background: linear-gradient(135deg, #021b35 0%, #043b6b 100%); /* Azul Escuro Navy */
+            color: white;
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(2, 27, 53, 0.7); /* Sombra azul escura */
+            border: 1px solid rgba(4, 59, 107, 0.5);
+            transition: all 0.3s ease;
+            margin: 0 auto 30px auto; /* Centralizado com margem */
+            max-width: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-mhi-search::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            transform: skewX(-25deg) translateX(-150%);
+            transition: 0.5s;
+        }
+        .btn-mhi-search:hover::before { transform: skewX(-25deg) translateX(150%); }
+        .btn-mhi-search:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(4, 59, 107, 0.8);
+            background: linear-gradient(135deg, #032b52 0%, #064d8a 100%);
+            border-color: #00aaff;
+        }
+        .btn-mhi-search i { font-size: 1.8rem; color: #00aaff; text-shadow: 0 0 10px rgba(0, 170, 255, 0.6); }
+        .btn-mhi-search .stat-label { font-size: 1.1rem; font-weight: 700; color: #e6f7ff; letter-spacing: 0.5px; }
+
+        /* MODAL */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px); }
         .modal-content { background: var(--card-bg); margin: 5% auto; padding: 30px; border: 1px solid var(--border-glow); border-radius: 20px; width: 90%; max-width: 1200px; box-shadow: 0 8px 32px var(--primary-glow); }
         .modal-close { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
-        .modal-close:hover { color: var(--primary); }
-        .modal-title { font-size: 1.8rem; color: var(--primary); margin-bottom: 25px; }
         .modal-stats-summary { display: flex; gap: 15px; justify-content: center; margin-bottom: 30px; padding-bottom: 25px; border-bottom: 1px solid var(--glass); flex-wrap: wrap; }
-        .modal-stats-summary .stat-card { min-width: 140px; padding: 15px 20px; background: rgba(10, 10, 10, 0.7); }
-        .modal-stats-summary .stat-card:hover { transform: translateY(-3px); border-color: var(--gray); box-shadow: 0 8px 20px rgba(255, 255, 255, 0.1); }
-        .modal-stats-summary .stat-value { font-size: 1.4rem; }
-        .modal-stats-summary .stat-label { font-size: 0.8rem; }
         .history-container { display: flex; flex-direction: column; gap: 25px; max-height: 70vh; }
         .history-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; overflow-y: auto; padding-right: 15px; max-height: 60vh; }
-        .history-list, .strategy-stats { overflow-y: visible; padding-right: 0; }
-        .history-grid::-webkit-scrollbar { width: 8px; }
-        .history-grid::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
-        .history-grid::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
-        .history-item { display: none; }
         .stats-table { width: 100%; border-collapse: collapse; }
         .stats-table th, .stats-table td { padding: 12px; border-bottom: 1px solid var(--glass); text-align: left; }
         .stats-table th { color: var(--primary); font-size: 0.9rem; text-transform: uppercase; }
-        .stats-table td { font-weight: 600; }
         .stats-table td.win { color: var(--success); }
         .stats-table td.loss { color: var(--danger); }
-        .history-list .stats-table td { font-size: 0.95rem; color: var(--light); }
-        .history-list .stats-table .res-win { color: var(--success); }
-        .history-list .stats-table .res-loss { color: var(--danger); }
-        @media (max-width: 1100px) { .main-content { grid-template-columns: 1fr; } .header { flex-direction: column; gap: 20px; text-align: center; } .stats { justify-content: center; } .asset-controls { grid-template-columns: 1fr 1fr 1fr; } }
+        
+        @media (max-width: 1100px) { .header { flex-direction: column; gap: 20px; text-align: center; } .stats { justify-content: center; } .asset-controls { grid-template-columns: 1fr 1fr 1fr; } }
         @media (max-width: 900px) { .history-grid { grid-template-columns: 1fr; max-height: 50vh; } .modal-content { margin: 10% auto; } }
+        @media (max-width: 480px) { .asset-controls { grid-template-columns: repeat(2, 1fr); } .strategy-controls-full-width { grid-template-columns: 1fr; } .stats .stat-card { width: 45%; } }
+        
         .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
         .particle { position: absolute; width: 2px; height: 2px; background: var(--primary); border-radius: 50%; animation: float 6s infinite linear; }
         @keyframes float { 0% { transform: translateY(100vh) translateX(0); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(-100px) translateX(100px); opacity: 0; } }
@@ -136,419 +207,310 @@
     <div class="container">
         <div class="header">
             <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-chart-line"></i>
-                </div>
+                <div class="logo-icon"><i class="fas fa-chart-line"></i></div>
                 <div class="logo-text">QUANTUM TRADE SIGNALS</div>
             </div>
             <div class="user-info">
                 <i class="fas fa-user"></i>
                 <span id="usernameDisplay">{{ username | default('Usuário') }}</span>
-                <button class="logout-btn" onclick="logout()">
-                    <i class="fas fa-sign-out-alt"></i> Sair
-                </button>
+                <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
             </div>
         </div>
 
-        <div class="stats">
-            <div class="stat-card">
-                <div class="stat-value win" id="winsDirect">0</div>
-                <div class="stat-label">Vitórias Diretas</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value win" id="wins1">0</div>
-                <div class="stat-label">Vitórias 1ª</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value win" id="wins2">0</div>
-                <div class="stat-label">Vitórias 2ª</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value loss" id="losses">0</div>
-                <div class="stat-label">Derrotas</div>
-            </div>
-            <div class="stat-card" id="historyBtn" style="cursor: pointer;">
-                <div class="stat-value" style="color: var(--warning);"><i class="fas fa-history"></i></div>
-                <div class="stat-label">Histórico/Stats</div>
-            </div>
-            <div class="stat-card" id="mhiBtn" style="cursor: pointer;">
-                <div class="stat-value" style="color: var(--success);"><i class="fas fa-search"></i></div>
-                <div class="stat-label">Buscar MHI+T5 Manual</div>
-            </div>
+        <div class="tabs-container">
+            <button class="tab-btn active" onclick="openTab('tab-mercado')">
+                <i class="fas fa-chart-line"></i> Mercado
+            </button>
+            <button class="tab-btn" onclick="openTab('tab-ativos')">
+                <i class="fas fa-coins"></i> Ativos
+            </button>
+            <button class="tab-btn" onclick="openTab('tab-estrategia')">
+                <i class="fas fa-chess-board"></i> Estratégias
+            </button>
+            <button class="tab-btn" onclick="openTab('tab-gestao')">
+                <i class="fas fa-calculator"></i> Gestão
+            </button>
         </div>
 
-        <div class="main-content">
-            <div class="signals-section">
-                <div class="section-title">
-                    <i class="fas fa-bolt"></i>
-                    <span>Seus Sinais em Tempo Real</span>
-                    <span class="live-indicator"></span>
+        <div id="tab-mercado" class="tab-content active">
+            <div class="stats">
+                <div class="stat-card"><div class="stat-value win" id="winsDirect">0</div><div class="stat-label">Vitórias Diretas</div></div>
+                <div class="stat-card"><div class="stat-value win" id="wins1">0</div><div class="stat-label">Vitórias 1ª</div></div>
+                <div class="stat-card"><div class="stat-value win" id="wins2">0</div><div class="stat-label">Vitórias 2ª</div></div>
+                <div class="stat-card"><div class="stat-value loss" id="losses">0</div><div class="stat-label">Derrotas</div></div>
+                <div class="stat-card" id="historyBtn" style="cursor: pointer;">
+                    <div class="stat-value" style="color: var(--warning);"><i class="fas fa-history"></i></div>
+                    <div class="stat-label">Histórico</div>
                 </div>
-                <div class="signal-list" id="signalList">
-                    <div class="signal-card" id="welcomeCard">
-                        <div class="signal-header">
-                            <div class="asset">BEM-VINDO, {{ username | default('Usuário') }}</div>
+            </div>
+
+            <div class="main-content">
+                <div class="signals-section">
+                    <div class="section-title">
+                        <i class="fas fa-bolt"></i>
+                        <span>Sinais em Tempo Real</span>
+                        <span class="live-indicator"></span>
+                    </div>
+                    <div class="signal-list" id="signalList">
+                        <div class="signal-card" id="welcomeCard">
+                            <div class="signal-header"><div class="asset">BEM-VINDO, {{ username }}</div></div>
+                            <div class="signal-meta">
+                                <div class="confidence" id="welcomeConfidence">Pronto para operar</div>
+                            </div>
+                            <div class="signal-text" id="welcomeText">Aguardando sinais...</div>
                         </div>
-                        <div class="signal-meta">
-                            <div class="time"><i class="far fa-clock"></i> Sistema Ativo</div>
-                            <div class="confidence" id="welcomeConfidence">
-                                <i class="fas fa-bullseye"></i> Pronto para operar
+                    </div>
+                </div>
+                
+                <div class="widgets-section">
+                     <div class="widget-container">
+                        <div class="widget-title"><i class="fas fa-info-circle"></i> Status do Sistema</div>
+                        <div style="color: var(--light); line-height: 1.6;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span id="roboStatusLabel">Seu Bot:</span>
+                                <span id="roboStatusValue" style="color: var(--success);">🟢 ATIVO</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span>Ativos Monitorados:</span>
+                                <span id="activeAssets">Nenhum</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span>Sinais (Estratégias):</span>
+                                <span id="activeStrategies">0/9</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Última Atualização:</span>
+                                <span id="lastUpdate">N/A</span>
                             </div>
                         </div>
-                        <div class="signal-text" id="welcomeText">
-                            Aguardando ativação de ativos no painel de controle.
+                    </div>
+                     <div class="widget-container">
+                        <div class="widget-title"><i class="fas fa-external-link-alt"></i> Links Úteis</div>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <a href="https://br.tradingview.com/" target="_blank" class="news-button" style="flex:1; margin:0;"><i class="fas fa-chart-area"></i> Gráfico</a>
+                            <a href="https://br.investing.com/economic-calendar/" target="_blank" class="news-button" style="flex:1; margin:0;"><i class="fas fa-calendar"></i> Notícias</a>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
+        <div id="tab-ativos" class="tab-content">
+            <div class="assets-header-container">
+                <div class="widget-title" style="justify-content: center;"> 
+                    <i class="fas fa-coins"></i> Selecione os Ativos para Monitorar
+                </div>
+                <div class="asset-controls">
+                    <button class="asset-btn" data-asset="btcusdt">BTC</button>
+                    <button class="asset-btn" data-asset="ethusdt">ETH</button>
+                    <button class="asset-btn" data-asset="bnbusdt">BNB</button>
+                    <button class="asset-btn" data-asset="memeusdt">MEME</button>
+                    <button class="asset-btn" data-asset="solusdt">SOL</button>
+                    <button class="asset-btn" data-asset="adausdt">ADA</button>
+                </div>
+                <p style="text-align: center; color: var(--gray); margin-top: 15px;">
+                    Clique para ativar/desativar o monitoramento.
+                </p>
+            </div>
+        </div>
+
+        <div id="tab-estrategia" class="tab-content">
             <div class="widgets-section">
-                <div class="section-title">
-                    <i class="fas fa-cogs"></i>
-                    <span>Seu Painel de Controle</span>
+                <div class="btn-mhi-search" id="mhiBtn">
+                    <i class="fas fa-search"></i>
+                    <div class="stat-label">Buscar Oportunidade MHI+T5 Agora</div>
                 </div>
 
                 <div class="widget-container">
-                    <div class="widget-title">
-                        <i class="fas fa-calculator"></i>
-                        <span>Gerenciamento (Martingale)</span>
-                    </div>
-                    <div class="management-info">
-                        <div class="setting-row" style="margin-bottom: 15px;">
-                            <label for="valorEntrada">Valor Entrada Base ($)</label>
-                            <input type="number" step="1" id="valorEntrada" class="setting-input">
-                        </div>
-                        <hr style="border-color: var(--glass); margin-bottom: 15px;">
-                        <div class="mgmt-row">
-                            <span>Entrada Base (Atual):</span>
-                            <span id="mgmtEntrada">$10.00</span>
-                        </div>
-                        <div class="mgmt-row">
-                            <span>Proteção 1 (x2):</span>
-                            <span id="mgmtP1">$20.00</span>
-                        </div>
-                        <div class="mgmt-row">
-                            <span>Proteção 2 (x2):</span>
-                            <span id="mgmtP2">$40.00</span>
-                        </div>
+                    <div class="widget-title"><i class="fas fa-toggle-on"></i> Ativar/Desativar Estratégias</div>
+                    <div class="strategy-controls strategy-controls-full-width">
+                        <div class="strategy-row"><span class="strategy-name">Bollinger Bands</span><label class="toggle-switch"><input type="checkbox" id="toggleBollinger"><span class="toggle-slider"></span></label></div>
+                        <div class="strategy-row"><span class="strategy-name">Estratégia RSI</span><label class="toggle-switch"><input type="checkbox" id="toggleRSI"><span class="toggle-slider"></span></label></div>
+                        <div class="strategy-row"><span class="strategy-name">Suporte/Resistência</span><label class="toggle-switch"><input type="checkbox" id="toggleSR"><span class="toggle-slider"></span></label></div>
+                        <div class="strategy-row"><span class="strategy-name">MHI (Manual)</span><label class="toggle-switch"><input type="checkbox" id="toggleMHI"><span class="toggle-slider"></span></label></div>
+                        <div class="strategy-row"><span class="strategy-name">T5 (Manual)</span><label class="toggle-switch"><input type="checkbox" id="toggleT5"><span class="toggle-slider"></span></label></div>
+                        <div class="strategy-row"><span class="strategy-name">Padrão 3 Velas (P3V)</span><label class="toggle-switch"><input type="checkbox" id="toggleP3V"><span class="toggle-slider"></span></label></div>
+                        <div class="strategy-row"><span class="strategy-name">Breakout SMA (5/7)</span><label class="toggle-switch"><input type="checkbox" id="toggleBreakout"><span class="toggle-slider"></span></label></div>
+                        <div class="strategy-row"><span class="strategy-name">Spike Volume</span><label class="toggle-switch"><input type="checkbox" id="toggleSpikeVolume"><span class="toggle-slider"></span></label></div>
+                        <div class="strategy-row"><span class="strategy-name">Momentum 3</span><label class="toggle-switch"><input type="checkbox" id="toggleMomentum3"><span class="toggle-slider"></span></label></div>
                     </div>
                 </div>
 
                 <div class="widget-container">
-                    <div class="widget-title">
-                        <i class="fab fa-telegram-plane" style="color: #0088cc;"></i>
-                        <span style="color: #0088cc;">Notificações Telegram (PV)</span>
-                    </div>
+                    <div class="widget-title"><i class="fas fa-sliders-h"></i> Ajuste Fino dos Parâmetros</div>
                     <div class="settings-controls">
-                        <div class="setting-row">
-                            <label for="telegramToken">Token do Bot (do @BotFather)</label>
-                            <input type="password" id="telegramToken" class="setting-input" style="width: 100%;" placeholder="Seu Token de Bot">
+                        <div class="setting-row"><label>Bollinger Dev (2.7)</label><input type="number" step="0.1" id="bollingerStd" class="setting-input"></div>
+                        <hr style="border-color: var(--glass);">
+                        <div class="setting-row"><label>RSI Período (14)</label><input type="number" id="rsiPeriodo" class="setting-input"></div>
+                        <div class="setting-row"><label>RSI Superior (70)</label><input type="number" id="rsiLimiteSup" class="setting-input"></div>
+                        <div class="setting-row"><label>RSI Inferior (30)</label><input type="number" id="rsiLimiteInf" class="setting-input"></div>
+                        <div class="setting-row"><label>RSI Filtro MACD</label><label class="toggle-switch"><input type="checkbox" id="toggleRsiUseMacd"><span class="toggle-slider"></span></label></div>
+                        <hr style="border-color: var(--glass);">
+                        <div class="setting-row"><label>S/R Período (200)</label><input type="number" id="srPeriodo" class="setting-input"></div>
+                        <div class="setting-row"><label>S/R Toques (3)</label><input type="number" id="srToques" class="setting-input"></div>
+                        <div class="setting-row"><label>S/R Tolerância %</label><input type="number" step="0.01" id="srTolerancia" class="setting-input"></div>
+                        <hr style="border-color: var(--glass);">
+                        <div class="setting-row"><label>MHI Filtro Trend</label><label class="toggle-switch"><input type="checkbox" id="mhiUseTrend"><span class="toggle-slider"></span></label></div>
+                        <div class="setting-row"><label>MHI Trend Periodo</label><input type="number" id="mhiTrendPeriodo" class="setting-input"></div>
+                        <div class="setting-row"><label>T5 Pavio Mín</label><input type="number" step="0.1" id="t5PavioMin" class="setting-input"></div>
+                        <hr style="border-color: var(--glass);">
+                        <div class="setting-row"><label>P3V Período VWMA</label><input type="number" id="p3vVwmaPeriodo" class="setting-input"></div>
+                        <hr style="border-color: var(--glass);">
+                        <div class="setting-row"><label>Breakout SMA Curta</label><input type="number" id="breakoutSmaCurta" class="setting-input"></div>
+                        <div class="setting-row"><label>Breakout SMA Longa</label><input type="number" id="breakoutSmaLonga" class="setting-input"></div>
+                        <div class="setting-row"><label>Breakout Mult. Corpo</label><input type="number" step="0.1" id="breakoutSmaBodyMult" class="setting-input"></div>
+                        <div class="setting-row"><label>Breakout Avg Period</label><input type="number" id="breakoutSmaAvgPeriod" class="setting-input"></div>
+                        <hr style="border-color: var(--glass);">
+                        <div class="setting-row"><label>Spike Vol. Periodo</label><input type="number" id="spikeVolumePeriodoMedia" class="setting-input"></div>
+                        <div class="setting-row"><label>Spike Vol. Mult.</label><input type="number" step="0.1" id="spikeVolumeMultiplicador" class="setting-input"></div>
+                        <div class="setting-row"><label>Spike Rev. Pavio Ratio</label><input type="number" step="0.1" id="spikeReversaoPavioRatio" class="setting-input"></div>
+                        <div class="setting-row"><label>Spike Rev. Corpo Ratio</label><input type="number" step="0.1" id="spikeReversaoCorpoRatio" class="setting-input"></div>
+                        <hr style="border-color: var(--glass);">
+                        <div class="setting-row"><label>Momentum 3 Forte</label><input type="number" step="0.1" id="momentum3Strong" class="setting-input"></div>
+                        <div class="setting-row"><label>Momentum 3 Fraco</label><input type="number" step="0.1" id="momentum3Weak" class="setting-input"></div>
+
+                        <button id="saveSettingsBtn" class="save-btn"><i class="fas fa-save"></i> Salvar Parâmetros</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-gestao" class="tab-content">
+            <div class="widgets-section">
+                <div class="widget-container">
+                    <div class="widget-title"><i class="fas fa-calculator"></i> Calculadora & Setup</div>
+                    <div class="management-grid">
+                        <div class="setting-row" style="flex-direction:column; align-items:flex-start;">
+                            <label>Banca ($)</label><input type="number" id="mgmtBancaInput" class="setting-input" style="width:100%" value="1000">
                         </div>
-                        <div class="setting-row">
-                            <label for="telegramChatId">Seu Chat ID (Privado)</label>
-                            <input type="text" id="telegramChatId" class="setting-input" style="width: 100%;" placeholder="Seu ID de Chat Privado">
+                        <div class="setting-row" style="flex-direction:column; align-items:flex-start;">
+                            <label>Entrada ($)</label><input type="number" id="valorEntrada" class="setting-input" style="width:100%">
                         </div>
-                        <button id="saveTelegramBtn" class="save-btn" style="background: linear-gradient(135deg, #0088cc, #0055aa);">
-                            <i class="fas fa-save"></i> Salvar e Testar Conexão
-                        </button>
                     </div>
                     
-                    <div class="telegram-tutorial">
-                        <strong>Como conectar seu Telegram:</strong>
+                    <div class="management-grid-full" style="margin-top: 15px;">
+                        <div class="setting-row" style="flex-direction: column; align-items: flex-start;">
+                            <label>Stop Gain (%)</label><input type="number" step="1" id="mgmtStopGainPctInput" class="setting-input" style="width:100%" value="10">
+                        </div>
+                        <div class="setting-row" style="flex-direction: column; align-items: flex-start;">
+                            <label>Stop Loss (%)</label><input type="number" step="1" id="mgmtStopLossPctInput" class="setting-input" style="width:100%" value="20">
+                        </div>
+                        <div class="setting-row" style="flex-direction: column; align-items: flex-start;">
+                            <label>Payout</label><input type="number" step="1" id="mgmtPayout" class="setting-input" style="width:100%" value="87">
+                        </div>
+                    </div>
+                    <div class="setting-row" style="flex-direction: column; align-items: flex-start; margin-top: 15px;">
+                         <label>Níveis / Tentativas</label><input type="number" step="1" id="mgmtNiveis" class="setting-input" style="width: 100%;" value="3">
+                    </div>
+
+                    <div class="management-buttons">
+                        <button id="calcMartingaleX2Btn" class="calc-btn martingale">Martingale</button>
+                        <button id="calcSorosBtn" class="calc-btn soros">Soros</button>
+                    </div>
+                    <div id="mgmtResult">
+                        <div id="mgmtResultTitle"></div>
+                        <ul id="mgmtResultList"></ul>
+                    </div>
+                </div>
+
+                <div class="widget-container">
+                    <div class="widget-title"><i class="fas fa-play-circle" style="color:var(--success)"></i> Operacional Real</div>
+                    <div class="settings-controls" style="gap: 10px; margin-bottom: 20px;">
+                        <div class="setting-row"><label>Banca ($)</label><input type="number" id="opBanca" class="setting-input" style="width: 100px;" value="50"></div>
+                        <div class="setting-row"><label>Payout (%)</label><input type="number" id="opPayout" class="setting-input" style="width: 100px;" value="87"></div>
+                         <div class="setting-row"><label>Valor 1ª Mão</label><input type="number" id="opMao1" class="setting-input" style="width: 100px;" value="7"></div>
+                        <div class="setting-row"><label>Níveis</label><input type="number" id="opNiveis" class="setting-input" style="width: 100px;" value="7"></div>
+                        <div class="setting-row"><label>Stop Win</label><input type="number" id="opStopWin" class="setting-input" style="width: 100px;" value="100"></div>
+                        <div class="setting-row"><label>Stop Loss</label><input type="number" id="opStopLoss" class="setting-input" style="width: 100px;" value="50"></div>
+                    </div>
+                    
+                    <button id="btnStartMgmt" class="btn-start" style="margin-top:20px;">Iniciar Gerenciamento</button>
+                    
+                    <div class="management-ops">
+                        <div class="display-area">
+                            <h4>Próxima Entrada</h4>
+                            <span id="mgmtNextEntrada" class="valor-entrada">R$ 0.00</span>
+                        </div>
+                         <div class="display-stats">
+                            <div><strong>Placar (W-L):</strong><span id="mgmtPlacarCiclo">0 / 0</span></div>
+                            <div><strong>Mão Atual:</strong><span id="mgmtMaoAtual">N/A</span></div>
+                            <div><strong>Lucro/Prejuízo:</strong><span id="mgmtProfit" class="profit">R$ 0.00</span></div>
+                        </div>
+                        <div class="action-buttons">
+                            <button id="btnMgmtWin" class="btn-win" disabled>WIN</button>
+                            <button id="btnMgmtLoss" class="btn-loss" disabled>LOSS</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="widget-container">
+                    <div class="widget-title"><i class="fab fa-telegram-plane"></i> Telegram</div>
+                    <div class="settings-controls">
+                        <input type="password" id="telegramToken" class="setting-input" style="width:100%; margin-bottom:10px;" placeholder="Token Bot">
+                        <input type="text" id="telegramChatId" class="setting-input" style="width:100%; margin-bottom:10px;" placeholder="Chat ID">
+                        <button id="saveTelegramBtn" class="save-btn">Salvar Telegram</button>
+                    </div>
+                     <div class="telegram-tutorial">
+                        <strong>Como conectar:</strong>
                         <ol>
-                            <li>No Telegram, procure por <code>@BotFather</code> (o oficial) e envie <code>/newbot</code> para criar seu bot.</li>
-                            <li>Copie o <b>Token</b> que ele te deu e cole no campo "Token do Bot" acima.</li>
-                            <li>Procure outro bot chamado <code>@userinfobot</code>.</li>
-                            <li>Envie <code>/start</code> para o <code>@userinfobot</code> e ele te responderá com seu <b>"Id"</b> (um número).</li>
-                            <li>Copie seu <b>Id</b> e cole no campo "Seu Chat ID (Privado)" acima.</li>
-                            <li><b>Importante:</b> Envie <code>/start</code> para o <b>seu próprio bot</b> (que você criou no passo 1) para que ele possa te enviar mensagens.</li>
-                            <li>Clique em "Salvar e Testar Conexão". Você deve receber uma mensagem de "Olá!" no seu PV.</li>
+                            <li>No Telegram, crie um bot no <code>@BotFather</code>.</li>
+                            <li>Copie o <b>Token</b> e cole acima.</li>
+                            <li>Descubra seu ID no <code>@userinfobot</code> e cole acima.</li>
+                            <li>Envie <code>/start</code> para o <b>seu bot</b>.</li>
+                            <li>Clique em salvar.</li>
                         </ol>
-                    </div>
-                </div>
-                
-                <div class="widget-container">
-                    <div class="widget-title">
-                        <i class="fas fa-coins"></i>
-                        Ativos Monitorados
-                    </div>
-                    <div class="asset-controls">
-                        <button class="asset-btn" data-asset="btcusdt">BTC</button>
-                        <button class="asset-btn" data-asset="ethusdt">ETH</button>
-                        <button class="asset-btn" data-asset="bnbusdt">BNB</button>
-                        <button class="asset-btn" data-asset="memeusdt">MEME</button>
-                        <button class="asset-btn" data-asset="solusdt">SOL</button>
-                        <button class="asset-btn" data-asset="adausdt">ADA</button>
-                    </div>
-                </div>
-                
-                <div class="widget-container">
-                    <div class="widget-title">
-                        <i class="fas fa-chess-board"></i>
-                        Estratégias Ativas
-                    </div>
-                    <div class="strategy-controls">
-                        <div class="strategy-row">
-                            <span class="strategy-name">Bollinger Bands</span>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="toggleBollinger" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="strategy-row">
-                            <span class="strategy-name">Estratégia RSI</span>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="toggleRSI" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="strategy-row">
-                            <span class="strategy-name">Suporte/Resistência</span>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="toggleSR" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="strategy-row">
-                            <span class="strategy-name">MHI (Manual)</span>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="toggleMHI" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="strategy-row">
-                            <span class="strategy-name">T5 (Manual)</span>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="toggleT5" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="strategy-row">
-                            <span class="strategy-name">Padrão 3 Velas (P3V)</span>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="toggleP3V" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="strategy-row">
-                            <span class="strategy-name">Breakout SMA (5/7)</span>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="toggleBreakout" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        </div>
-                    
-                    <hr style="border-color: var(--glass); margin: 25px 0 20px 0;">
-                    
-                    <div class="widget-title">
-                        <i class="fas fa-sliders-h"></i>
-                        Parâmetros das Estratégias
-                    </div>
-                    <div class="settings-controls">
-                        <div class="setting-row">
-                            <label for="bollingerStd">Bollinger Dev (Padrão: 2.7)</label>
-                            <input type="number" step="0.1" id="bollingerStd" class="setting-input">
-                        </div>
-                        <hr style="border-color: var(--glass);">
-                        <div class="setting-row">
-                            <label for="rsiPeriodo">RSI Período (Padrão: 14)</label>
-                            <input type="number" step="1" id="rsiPeriodo" class="setting-input">
-                        </div>
-                        <div class="setting-row">
-                            <label for="rsiLimiteSup">RSI Limite Sup (Padrão: 70)</label>
-                            <input type="number" step="1" id="rsiLimiteSup" class="setting-input">
-                        </div>
-                        <div class="setting-row">
-                            <label for="rsiLimiteInf">RSI Limite Inf (Padrão: 30)</label>
-                            <input type="number" step="1" id="rsiLimiteInf" class="setting-input">
-                        </div>
-                        <div class="setting-row" style="margin-top: 10px;">
-                            <label for="toggleRsiUseMacd">RSI Usar Filtro MACD</label>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="toggleRsiUseMacd" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        <hr style="border-color: var(--glass);">
-                        <div class="setting-row">
-                            <label for="srPeriodo">S/R Período (Padrão: 200)</label>
-                            <input type="number" step="10" id="srPeriodo" class="setting-input">
-                        </div>
-                        <div class="setting-row">
-                            <label for="srToques">S/R Toques (Padrão: 3)</label>
-                            <input type="number" step="1" id="srToques" class="setting-input">
-                        </div>
-                        <div class="setting-row">
-                            <label for="srTolerancia">S/R Tolerância % (Padrão: 0.05)</label>
-                            <input type="number" step="0.01" id="srTolerancia" class="setting-input">
-                        </div>
-                        <hr style="border-color: var(--glass);">
-                        <div class="setting-row">
-                            <label for="mhiUseTrend">MHI Usar Filtro Tendência</label>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="mhiUseTrend" checked>
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        <div class="setting-row">
-                            <label for="mhiTrendPeriodo">MHI Tendência (Padrão: 100)</label>
-                            <input type="number" step="1" id="mhiTrendPeriodo" class="setting-input">
-                        </div>
-                        <hr style="border-color: var(--glass);">
-                        <div class="setting-row">
-                            <label for="t5PavioMin">T5 Pavio Mín (Padrão: 2.0)</label>
-                            <input type="number" step="0.1" id="t5PavioMin" class="setting-input">
-                        </div>
-                        
-                        <hr style="border-color: var(--glass);">
-                        <div class="setting-row">
-                            <label for="p3vVwmaPeriodo">P3V Período VWMA (Padrão: 30)</label>
-                            <input type="number" step="1" id="p3vVwmaPeriodo" class="setting-input">
-                        </div>
-                        
-                        <hr style="border-color: var(--glass);">
-                        <div class="setting-row">
-                            <label for="breakoutSmaCurta">Breakout Média Curta (Padrão: 5)</label>
-                            <input type="number" step="1" id="breakoutSmaCurta" class="setting-input">
-                        </div>
-                        <div class="setting-row">
-                            <label for="breakoutSmaLonga">Breakout Média Longa (Padrão: 7)</label>
-                            <input type="number" step="1" id="breakoutSmaLonga" class="setting-input">
-                        </div>
-                        <div class="setting-row">
-                            <label for="breakoutSmaBodyMult">Breakout Mult. Corpo (Padrão: 2.0)</label>
-                            <input type="number" step="0.1" id="breakoutSmaBodyMult" class="setting-input">
-                        </div>
-                        <div class="setting-row">
-                            <label for="breakoutSmaAvgPeriod">Breakout Per. Média Corpo (Padrão: 20)</label>
-                            <input type="number" step="1" id="breakoutSmaAvgPeriod" class="setting-input">
-                        </div>
-                        <button id="saveSettingsBtn" class="save-btn">
-                            <i class="fas fa-save"></i> Salvar Parâmetros
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="widget-container">
-                    <div class="widget-title">
-                        <i class="fas fa-external-link-alt"></i>
-                        Ferramentas de Trading
-                    </div>
-                    <a href="https://br.tradingview.com/" target="_blank" class="news-button">
-                        <i class="fas fa-chart-line"></i>
-                        📊 TradingView
-                    </a>
-                    <a href="https://br.investing.com/economic-calendar/" target="_blank" class="news-button">
-                        <i class="fas fa-calendar-alt"></i>
-                        📅 Calendário Econômico
-                    </a>
-                    <a href="https://br.investing.com/news/cryptocurrency-news" target="_blank" class="news-button">
-                        <i class="fab fa-bitcoin"></i>
-                        🚀 Notícias Cripto
-                    </a>
-                </div>
-
-                <div class="widget-container">
-                    <div class="widget-title">
-                        <i class="fas fa-info-circle"></i>
-                        Status do Sistema
-                    </div>
-                    <div style="color: var(--light); line-height: 1.6;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <span id="roboStatusLabel">Seu Bot:</span>
-                            <span id="roboStatusValue" style="color: var(--success);">🟢 ATIVO</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <span>Seus Ativos Ativos:</span>
-                            <span id="activeAssets">Nenhum</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <span>Suas Estratégias:</span>
-                            <span id="activeStrategies">7/7</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between;">
-                            <span>Último Sinal (Seu):</span>
-                            <span id="lastUpdate">N/A</span>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="footer">
-            <p>QUANTUM TRADE SIGNALS • SISTEMA PROFISSIONAL DE TRADING • DESENVOLVIDO PARA TRADORES EXIGENTES</p>
-            <p style="margin-top: 10px; font-size: 0.8rem; color: #666;">
-                ⚠️ Este é um sistema automatizado - Opere com responsabilidade
-            </p>
+            <p>QUANTUM TRADE SIGNALS • SISTEMA PROFISSIONAL DE TRADING</p>
         </div>
     </div>
     
     <div id="historyModal" class="modal">
       <div class="modal-content">
         <span class="modal-close" id="closeHistoryModal">&times;</span>
-        <div class="modal-title"><i class="fas fa-history"></i> Seu Histórico de Sinais e Estatísticas</div>
-        
+        <div class="modal-title"><i class="fas fa-history"></i> Histórico de Sinais</div>
         <div class="history-container">
-        
             <div class="modal-stats-summary">
-                <div class="stat-card">
-                    <div class="stat-value" id="modalTotalOps">0</div>
-                    <div class="stat-label">Total de Operações</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="modalAssertividade" style="color: var(--warning);">0%</div>
-                    <div class="stat-label">Assertividade</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value win" id="modalTotalWins">0</div>
-                    <div class="stat-label">Total Vitórias</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value loss" id="modalTotalLosses">0</div>
-                    <div class="stat-label">Total Derrotas</div>
-                </div>
+                <div class="stat-card"><div class="stat-value" id="modalTotalOps">0</div><div class="stat-label">Total</div></div>
+                <div class="stat-card"><div class="stat-value" id="modalAssertividade" style="color: var(--warning);">0%</div><div class="stat-label">Assertividade</div></div>
+                <div class="stat-card"><div class="stat-value win" id="modalTotalWins">0</div><div class="stat-label">Vitórias</div></div>
+                <div class="stat-card"><div class="stat-value loss" id="modalTotalLosses">0</div><div class="stat-label">Derrotas</div></div>
             </div>
-            
             <div class="history-grid">
                 <div class="strategy-stats">
-                    <h3 class="widget-title"><i class="fas fa-chess-board"></i> Stats por Estratégia</h3>
+                    <h3 class="widget-title"><i class="fas fa-chess-board"></i> Por Estratégia</h3>
                     <table class="stats-table">
-                        <thead>
-                            <tr>
-                                <th>Estratégia</th>
-                                <th class="win">WIN</th>
-                                <th class="win">WIN P1</th>
-                                <th class="win">WIN P2</th>
-                                <th class="loss">LOSS</th>
-                            </tr>
-                        </thead>
-                        <tbody id="statsTableBody">
-                            </tbody>
+                        <thead><tr><th>Estratégia</th><th class="win">WIN</th><th class="win">P1</th><th class="win">P2</th><th class="loss">LOSS</th></tr></thead>
+                        <tbody id="statsTableBody"></tbody>
                     </table>
                 </div>
-                
                 <div class="history-list">
-                    <h3 class="widget-title"><i class="fas fa-clipboard-list"></i> Últimos Sinais</h3>
+                    <h3 class="widget-title"><i class="fas fa-clipboard-list"></i> Últimos</h3>
                     <table class="stats-table">
-                        <thead>
-                            <tr>
-                                <th>Data/Hora</th>
-                                <th>Ativo</th>
-                                <th>Origem</th>
-                                <th>Resultado</th>
-                            </tr>
-                        </thead>
-                        <tbody id="historyListBody">
-                            </tbody>
+                        <thead><tr><th>Hora</th><th>Ativo</th><th>Origem</th><th>Resultado</th></tr></thead>
+                        <tbody id="historyListBody"></tbody>
                     </table>
                 </div>
             </div>
-            
         </div>
       </div>
     </div>
-    <script>
+
+<script>
+        // --- FUNÇÃO DE ABAS ---
+        function openTab(tabId) {
+            const contents = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < contents.length; i++) { contents[i].classList.remove('active'); }
+            const buttons = document.getElementsByClassName('tab-btn');
+            for (let i = 0; i < buttons.length; i++) { buttons[i].classList.remove('active'); }
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
         const evtSource = new EventSource("/stream");
         const signalList = document.getElementById("signalList");
         const winsDirectEl = document.getElementById("winsDirect");
@@ -564,7 +526,7 @@
         const historyBtn = document.getElementById('historyBtn');
         const mhiBtn = document.getElementById('mhiBtn');
         const mhiBtnLabel = mhiBtn.querySelector('.stat-label');
-        const mhiBtnOriginalText = "Buscar MHI+T5 Manual";
+        const mhiBtnOriginalText = "Buscar Oportunidade MHI+T5 Agora"; // Texto atualizado
         
         const historyModal = document.getElementById('historyModal');
         const closeHistoryModal = document.getElementById('closeHistoryModal');
@@ -576,8 +538,10 @@
         const toggleSR = document.getElementById('toggleSR');
         const toggleMHI = document.getElementById('toggleMHI');
         const toggleT5 = document.getElementById('toggleT5');
-        const toggleP3V = document.getElementById('toggleP3V');
-        const toggleBreakout = document.getElementById('toggleBreakout'); // <-- NOVO
+        const toggleP3V = document.getElementById('toggleP3V'); 
+        const toggleBreakout = document.getElementById('toggleBreakout');
+        const toggleSpikeVolume = document.getElementById('toggleSpikeVolume');
+        const toggleMomentum3 = document.getElementById('toggleMomentum3');
 
         const bollingerStdInput = document.getElementById('bollingerStd');
         const rsiPeriodoInput = document.getElementById('rsiPeriodo');
@@ -591,21 +555,33 @@
         const mhiTrendPeriodoInput = document.getElementById('mhiTrendPeriodo');
         const p3vVwmaPeriodoInput = document.getElementById('p3vVwmaPeriodo');
         
-        // <-- INPUTS BREAKOUT NOVOS
         const breakoutSmaCurtaInput = document.getElementById('breakoutSmaCurta');
         const breakoutSmaLongaInput = document.getElementById('breakoutSmaLonga');
         const breakoutSmaBodyMultInput = document.getElementById('breakoutSmaBodyMult');
         const breakoutSmaAvgPeriodInput = document.getElementById('breakoutSmaAvgPeriod');
         
-        // <-- FILTRO MACD GLOBAL REMOVIDO
-        const toggleRsiUseMacd = document.getElementById('toggleRsiUseMacd'); // (Filtro específico do RSI)
+        const spikeVolumePeriodoMediaInput = document.getElementById('spikeVolumePeriodoMedia');
+        const spikeVolumeMultiplicadorInput = document.getElementById('spikeVolumeMultiplicador');
+        const spikeReversaoPavioRatioInput = document.getElementById('spikeReversaoPavioRatio');
+        const spikeReversaoCorpoRatioInput = document.getElementById('spikeReversaoCorpoRatio');
+        
+        const momentum3StrongInput = document.getElementById('momentum3Strong');
+        const momentum3WeakInput = document.getElementById('momentum3Weak');
 
+        const toggleRsiUseMacd = document.getElementById('toggleRsiUseMacd');
         const saveSettingsBtn = document.getElementById('saveSettingsBtn');
         
         const valorEntradaInput = document.getElementById('valorEntrada');
-        const mgmtEntradaEl = document.getElementById('mgmtEntrada');
-        const mgmtP1El = document.getElementById('mgmtP1');
-        const mgmtP2El = document.getElementById('mgmtP2');
+        const mgmtBancaInput = document.getElementById('mgmtBancaInput');
+        const mgmtStopLossPctInput = document.getElementById('mgmtStopLossPctInput');
+        const mgmtStopGainPctInput = document.getElementById('mgmtStopGainPctInput');
+        const mgmtPayoutInput = document.getElementById('mgmtPayout');
+        const mgmtNiveisInput = document.getElementById('mgmtNiveis');
+        const calcMartingaleX2Btn = document.getElementById('calcMartingaleX2Btn');
+        const calcSorosBtn = document.getElementById('calcSorosBtn');
+        const mgmtResultDiv = document.getElementById('mgmtResult');
+        const mgmtResultTitle = document.getElementById('mgmtResultTitle');
+        const mgmtResultList = document.getElementById('mgmtResultList');
 
         const assetButtons = document.querySelectorAll('.asset-btn');
 
@@ -636,10 +612,14 @@
         toggleMHI.addEventListener('change', function() { updateStrategy('mhi', this.checked); });
         toggleT5.addEventListener('change', function() { updateStrategy('t5', this.checked); });
         toggleP3V.addEventListener('change', function() { updateStrategy('p3v', this.checked); }); 
-        toggleBreakout.addEventListener('change', function() { updateStrategy('breakout_sma', this.checked); }); // <-- NOVO
-        
+        toggleBreakout.addEventListener('change', function() { updateStrategy('breakout_sma', this.checked); });
+        toggleSpikeVolume.addEventListener('change', function() { updateStrategy('spike_volume', this.checked); });
+        toggleMomentum3.addEventListener('change', function() { updateStrategy('momentum_3', this.checked); });
+
         saveSettingsBtn.addEventListener('click', function() { saveSettings(); });
-        valorEntradaInput.addEventListener('input', function() { updateManagementDisplay(this.value); });
+        
+        calcMartingaleX2Btn.addEventListener('click', calculateMartingaleX2);
+        calcSorosBtn.addEventListener('click', calculateSoros);
 
         assetButtons.forEach(btn => {
             btn.addEventListener('click', function() {
@@ -661,29 +641,18 @@
         saveTelegramBtn.addEventListener('click', function() {
             const token = telegramTokenInput.value;
             const chatId = telegramChatIdInput.value; 
-
-            if (!token || !chatId) {
-                alert("Por favor, preencha o Token e o Chat ID. Siga o tutorial abaixo.");
-                return;
-            }
-
+            if (!token || !chatId) { alert("Por favor, preencha o Token e o Chat ID."); return; }
             saveTelegramBtn.innerHTML = '<i class="fas fa-search"></i> Testando...';
-
             fetch('/api/update_telegram', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    telegram_token: token,
-                    telegram_chat_id: chatId
-                })
+                body: JSON.stringify({ telegram_token: token, telegram_chat_id: chatId })
             })
             .then(response => response.json())
             .then(data => {
                 if (data.status !== 'success') {
                      saveTelegramBtn.innerHTML = '<i class="fas fa-times"></i> Erro ao salvar!';
-                     setTimeout(() => {
-                        saveTelegramBtn.innerHTML = '<i class="fas fa-save"></i> Salvar e Testar Conexão';
-                    }, 3000);
+                     setTimeout(() => { saveTelegramBtn.innerHTML = '<i class="fas fa-save"></i> Salvar Telegram'; }, 3000);
                 }
             });
         });
@@ -694,37 +663,21 @@
             fetch('/api/manual_check_mhi_t5', { method: 'POST' })
             .then(response => response.json())
             .then(data => {
-                if (data.status === 'searching') {
-                    label.textContent = 'Busca Ativada!';
-                } else if (data.status === 'disabled') {
-                    label.textContent = 'Estratégia OFF';
-                    setTimeout(() => { label.textContent = mhiBtnOriginalText; }, 3000);
-                } else {
-                    label.textContent = 'Erro!';
-                     setTimeout(() => { label.textContent = mhiBtnOriginalText; }, 3000);
-                }
+                if (data.status === 'searching') { label.textContent = 'Busca Ativada!'; } 
+                else { label.textContent = 'Erro/OFF'; setTimeout(() => { label.textContent = mhiBtnOriginalText; }, 3000); }
             })
-            .catch(err => {
-                label.textContent = 'Erro!';
-                setTimeout(() => { label.textContent = mhiBtnOriginalText; }, 3000);
-            });
+            .catch(err => { label.textContent = 'Erro!'; setTimeout(() => { label.textContent = mhiBtnOriginalText; }, 3000); });
         });
         
         closeHistoryModal.addEventListener('click', () => { historyModal.style.display = 'none'; });
-        window.addEventListener('click', (event) => {
-            if (event.target == historyModal) { historyModal.style.display = 'none'; }
-        });
+        window.addEventListener('click', (event) => { if (event.target == historyModal) { historyModal.style.display = 'none'; } });
 
         function updateStrategy(strategy, enabled) {
             fetch('/api/update_strategy', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ strategy: strategy, enabled: enabled })
-            }).then(response => response.json())
-              .then(data => {
-                  console.log('Sua estratégia foi atualizada:', data);
-                  updateActiveStrategiesDisplay();
-              });
+            }).then(response => response.json()).then(data => { updateActiveStrategiesDisplay(); });
         }
         
         function saveSettings() {
@@ -741,40 +694,164 @@
                 mhi_use_trend: mhiUseTrendInput.checked,
                 mhi_trend_periodo: mhiTrendPeriodoInput.value,
                 p3v_vwma_periodo: p3vVwmaPeriodoInput.value,
-                
-                // --- FILTRO MACD GLOBAL REMOVIDO ---
                 rsi_use_macd: toggleRsiUseMacd.checked,
-                
-                // --- NOVOS DADOS BREAKOUT ---
                 breakout_sma_curta: breakoutSmaCurtaInput.value,
                 breakout_sma_longa: breakoutSmaLongaInput.value,
                 breakout_sma_body_mult: breakoutSmaBodyMultInput.value,
-                breakout_sma_avg_period: breakoutSmaAvgPeriodInput.value
-                // --- FIM NOVOS DADOS ---
+                breakout_sma_avg_period: breakoutSmaAvgPeriodInput.value,
+                spike_volume_periodo_media: spikeVolumePeriodoMediaInput.value,
+                spike_volume_multiplicador: spikeVolumeMultiplicadorInput.value,
+                spike_reversao_pavio_ratio: spikeReversaoPavioRatioInput.value,
+                spike_reversao_corpo_ratio: spikeReversaoCorpoRatioInput.value,
+                momentum_3_corpo_forte: momentum3StrongInput.value,
+                momentum_3_corpo_fraco: momentum3WeakInput.value
             };
             fetch('/api/update_settings', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(settingsData)
-            }).then(response => response.json())
-              .then(data => {
+            }).then(response => response.json()).then(data => {
                   if(data.status === 'success') {
-                      console.log('Seus parâmetros foram salvos:', data);
                       saveSettingsBtn.innerHTML = '<i class="fas fa-check"></i> Salvo!';
-                      setTimeout(() => {
-                          saveSettingsBtn.innerHTML = '<i class="fas fa-save"></i> Salvar Parâmetros';
-                      }, 2000);
+                      setTimeout(() => { saveSettingsBtn.innerHTML = '<i class="fas fa-save"></i> Salvar Parâmetros'; }, 2000);
                   }
               });
         }
 
-        function updateManagementDisplay(baseValue) {
-            const entrada = parseFloat(baseValue) || 0;
-            const p1 = entrada * 2;
-            const p2 = p1 * 2;
-            mgmtEntradaEl.textContent = `$${entrada.toFixed(2)}`;
-            mgmtP1El.textContent = `$${p1.toFixed(2)}`;
-            mgmtP2El.textContent = `$${p2.toFixed(2)}`;
+        function calculateMartingaleX2() {
+            const banca = parseFloat(mgmtBancaInput.value) || 0;
+            const stopLossPct = parseFloat(mgmtStopLossPctInput.value) || 20;
+            const stopGainPct = parseFloat(mgmtStopGainPctInput.value) || 10;
+            const entradaBase = parseFloat(valorEntradaInput.value) || 0;
+            const niveis = parseInt(mgmtNiveisInput.value) || 3;
+            
+            if (entradaBase <= 0 || banca <= 0) { alert("Preencha Banca e Entrada."); return; }
+            const stopLossValor = banca * (stopLossPct / 100.0);
+            const stopGainValor = banca * (stopGainPct / 100.0);
+            
+            mgmtResultTitle.textContent = `Martingale (x2) - ${niveis} Níveis`;
+            mgmtResultList.innerHTML = '';
+            let maoAtual = entradaBase; let perdaTotalAcumulada = 0;
+            for (let i = 1; i <= niveis; i++) {
+                const label = i === 1 ? `Mão 1` : `Proteção ${i-1}`;
+                mgmtResultList.innerHTML += `<li><span>${label}:</span> <span>$${maoAtual.toFixed(2)}</span></li>`;
+                perdaTotalAcumulada += maoAtual; maoAtual = maoAtual * 2;
+            }
+            mgmtResultList.innerHTML += `<hr style="border-color:var(--glass)"><li><span>Perda Total:</span> <span class="loss">$${perdaTotalAcumulada.toFixed(2)}</span></li>`;
+            mgmtResultDiv.style.display = 'block';
+        }
+
+        function calculateSoros() {
+            const banca = parseFloat(mgmtBancaInput.value) || 0;
+            const entradaBase = parseFloat(valorEntradaInput.value) || 0;
+            const payout = parseFloat(mgmtPayoutInput.value) || 87;
+            const niveis = parseInt(mgmtNiveisInput.value) || 3;
+            if (entradaBase <= 0 || banca <= 0) { alert("Preencha dados."); return; }
+            
+            mgmtResultTitle.textContent = `Soros - ${niveis} Níveis (${payout}%)`;
+            mgmtResultList.innerHTML = '';
+            let maoAtual = entradaBase; const payoutDecimal = payout / 100.0;
+            for (let i = 1; i <= niveis; i++) {
+                mgmtResultList.innerHTML += `<li><span>Nível ${i}:</span> <span>$${maoAtual.toFixed(2)}</span></li>`;
+                maoAtual = maoAtual + (maoAtual * payoutDecimal);
+            }
+            mgmtResultList.innerHTML += `<hr style="border-color:var(--glass)"><li><span>Risco Inicial:</span> <span class="loss">$${entradaBase.toFixed(2)}</span></li>`;
+            mgmtResultDiv.style.display = 'block';
+        }
+        
+        const opBanca = document.getElementById('opBanca');
+        const opPayout = document.getElementById('opPayout');
+        const opStopWin = document.getElementById('opStopWin');
+        const opStopLoss = document.getElementById('opStopLoss');
+        const opMao1 = document.getElementById('opMao1');
+        const opNiveis = document.getElementById('opNiveis');
+        const btnStartMgmt = document.getElementById('btnStartMgmt');
+
+        const mgmtNextEntrada = document.getElementById('mgmtNextEntrada');
+        const mgmtPlacarCiclo = document.getElementById('mgmtPlacarCiclo');
+        const mgmtMaoAtual = document.getElementById('mgmtMaoAtual');
+        const mgmtProfit = document.getElementById('mgmtProfit');
+        const btnMgmtWin = document.getElementById('btnMgmtWin');
+        const btnMgmtLoss = document.getElementById('btnMgmtLoss');
+
+        let estadoGerenciamento = { ativo: false, bancaInicial: 0, bancaAtual: 0, payout: 0.87, stopWin: 0, stopLoss: 0, maoInicial: 7, maxNiveis: 7, proximaEntrada: 0, lucroTotal: 0, sequenciaFatores: [1, 1.42857, 1.85714, 1.71428], nivelCicloAtual: 0, winsCiclo: 0, lossesCiclo: 0, consecutiveLosses: 0 };
+
+        btnStartMgmt.addEventListener('click', iniciarGerenciamento);
+        btnMgmtWin.addEventListener('click', registrarWin);
+        btnMgmtLoss.addEventListener('click', registrarLoss);
+
+        function iniciarGerenciamento() {
+            estadoGerenciamento.bancaInicial = parseFloat(opBanca.value);
+            estadoGerenciamento.bancaAtual = estadoGerenciamento.bancaInicial;
+            estadoGerenciamento.payout = parseFloat(opPayout.value) / 100.0;
+            estadoGerenciamento.stopWin = parseFloat(opStopWin.value);
+            estadoGerenciamento.stopLoss = parseFloat(opStopLoss.value);
+            estadoGerenciamento.maoInicial = parseFloat(opMao1.value);
+            estadoGerenciamento.maxNiveis = parseInt(opNiveis.value);
+            estadoGerenciamento.nivelCicloAtual = 0; estadoGerenciamento.winsCiclo = 0; estadoGerenciamento.lossesCiclo = 0; estadoGerenciamento.consecutiveLosses = 0;
+            estadoGerenciamento.proximaEntrada = estadoGerenciamento.maoInicial;
+            estadoGerenciamento.lucroTotal = 0; estadoGerenciamento.ativo = true;
+            btnMgmtWin.disabled = false; btnMgmtLoss.disabled = false;
+            atualizarDisplayOperacional();
+        }
+
+        function registrarWin() {
+            if (!estadoGerenciamento.ativo) return;
+            const valorEntrada = estadoGerenciamento.proximaEntrada;
+            const lucroOperacao = valorEntrada * estadoGerenciamento.payout;
+            estadoGerenciamento.lucroTotal += lucroOperacao;
+            estadoGerenciamento.bancaAtual += lucroOperacao;
+            estadoGerenciamento.winsCiclo++;
+            estadoGerenciamento.consecutiveLosses = 0;
+            estadoGerenciamento.proximaEntrada = estadoGerenciamento.maoInicial;
+            avancarMaoNoCiclo(); atualizarDisplayOperacional(); verificarStopsGlobais();
+        }
+
+        function registrarLoss() {
+            if (!estadoGerenciamento.ativo) return;
+            const valorEntrada = estadoGerenciamento.proximaEntrada;
+            estadoGerenciamento.lucroTotal -= valorEntrada;
+            estadoGerenciamento.bancaAtual -= valorEntrada;
+            estadoGerenciamento.lossesCiclo++;
+            estadoGerenciamento.consecutiveLosses++;
+            
+            let fator;
+            if (estadoGerenciamento.consecutiveLosses < estadoGerenciamento.sequenciaFatores.length) {
+                fator = estadoGerenciamento.sequenciaFatores[estadoGerenciamento.consecutiveLosses];
+            } else { fator = estadoGerenciamento.sequenciaFatores[estadoGerenciamento.sequenciaFatores.length - 1]; }
+            
+            let proximaEntradaCalculada = estadoGerenciamento.maoInicial * fator;
+            estadoGerenciamento.proximaEntrada = Math.ceil(proximaEntradaCalculada * 100) / 100;
+            avancarMaoNoCiclo(); atualizarDisplayOperacional(); verificarStopsGlobais();
+        }
+        
+        function avancarMaoNoCiclo() {
+            estadoGerenciamento.nivelCicloAtual++;
+            if (estadoGerenciamento.nivelCicloAtual >= estadoGerenciamento.maxNiveis) {
+                btnMgmtWin.disabled = true; btnMgmtLoss.disabled = true; estadoGerenciamento.ativo = false; 
+                setTimeout(() => { alert(`FIM DE CICLO! Reiniciando...`); iniciarGerenciamento(); }, 100);
+            }
+        }
+
+        function atualizarDisplayOperacional() {
+            if (!estadoGerenciamento.ativo && estadoGerenciamento.winsCiclo === 0 && estadoGerenciamento.lossesCiclo === 0) {
+                 mgmtNextEntrada.textContent = "R$ 0.00"; mgmtPlacarCiclo.textContent = "0 / 0"; mgmtMaoAtual.textContent = "N/A"; mgmtProfit.textContent = "R$ 0.00"; mgmtProfit.className = 'profit'; return;
+            }
+            mgmtNextEntrada.textContent = `R$ ${estadoGerenciamento.proximaEntrada.toFixed(2)}`;
+            mgmtPlacarCiclo.textContent = `${estadoGerenciamento.winsCiclo} W - ${estadoGerenciamento.lossesCiclo} L`;
+            let maoDisplay = (estadoGerenciamento.nivelCicloAtual >= estadoGerenciamento.maxNiveis) ? estadoGerenciamento.maxNiveis : estadoGerenciamento.nivelCicloAtual + 1;
+            mgmtMaoAtual.textContent = `Mão ${maoDisplay} / ${estadoGerenciamento.maxNiveis}`;
+            mgmtProfit.textContent = `R$ ${estadoGerenciamento.lucroTotal.toFixed(2)}`;
+            mgmtProfit.className = (estadoGerenciamento.lucroTotal >= 0) ? 'profit' : 'loss';
+            if (!estadoGerenciamento.ativo) { mgmtNextEntrada.textContent = "FIM"; }
+        }
+
+        function verificarStopsGlobais() {
+            if (!estadoGerenciamento.ativo) return; 
+            let stop = false; let mensagem = "";
+            if (estadoGerenciamento.lucroTotal >= estadoGerenciamento.stopWin) { stop = true; mensagem = `STOP WIN! Lucro: R$ ${estadoGerenciamento.lucroTotal.toFixed(2)}`; }
+            if (estadoGerenciamento.lucroTotal <= -estadoGerenciamento.stopLoss) { stop = true; mensagem = `STOP LOSS! Prejuízo: R$ ${estadoGerenciamento.lucroTotal.toFixed(2)}`; }
+            if (stop) { estadoGerenciamento.ativo = false; btnMgmtWin.disabled = true; btnMgmtLoss.disabled = true; mgmtNextEntrada.textContent = "STOP!"; alert(mensagem); }
         }
 
         function updateAsset(asset, monitor) {
@@ -782,127 +859,62 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ asset: asset, monitor: monitor })
-            }).then(response => response.json())
-              .then(data => {
-                  console.log('Seu ativo foi atualizado:', data);
-              });
+            }).then(response => response.json());
         }
 
         function updateActiveAssetsDisplay() {
-            const activeAssets = Array.from(assetButtons)
-                .filter(btn => btn.classList.contains('active'))
-                .map(btn => btn.textContent)
-                .join(', ');
+            const activeAssets = Array.from(assetButtons).filter(btn => btn.classList.contains('active')).map(btn => btn.textContent).join(', ');
             activeAssetsEl.textContent = activeAssets || 'Nenhum';
             const welcomeCard = document.getElementById('welcomeCard');
             if (welcomeCard) {
                 const welcomeText = document.getElementById('welcomeText');
                 const welcomeConfidence = document.getElementById('welcomeConfidence');
-                if (activeAssets) {
-                    welcomeText.textContent = "Monitorando seus ativos. Aguardando os primeiros sinais...";
-                    welcomeConfidence.innerHTML = '<i class="fas fa-bullseye"></i> Monitorando';
-                } else {
-                    welcomeText.textContent = "Aguardando ativação de ativos no seu painel de controle.";
-                    welcomeConfidence.innerHTML = '<i class="fas fa-bullseye"></i> Pronto para operar';
-                }
+                if (activeAssets) { welcomeText.textContent = "Monitorando seus ativos. Aguardando sinais..."; welcomeConfidence.innerHTML = '<i class="fas fa-bullseye"></i> Monitorando'; } 
+                else { welcomeText.textContent = "Aguardando ativação de ativos no seu painel de controle."; welcomeConfidence.innerHTML = '<i class="fas fa-bullseye"></i> Pronto para operar'; }
             }
         }
 
         function updateActiveStrategiesDisplay() {
-            const activeCount = [toggleBollinger, toggleRSI, toggleSR, toggleMHI, toggleT5, toggleP3V, toggleBreakout] // <-- NOVO
-                .filter(toggle => toggle.checked).length;
-            activeStrategiesEl.textContent = `${activeCount}/7`; // <-- NOVO (Total 7)
+            const activeCount = [toggleBollinger, toggleRSI, toggleSR, toggleMHI, toggleT5, toggleP3V, toggleBreakout, toggleSpikeVolume, toggleMomentum3].filter(toggle => toggle.checked).length;
+            activeStrategiesEl.textContent = `${activeCount}/9`;
         }
 
         evtSource.onmessage = function(e) {
             try {
                 const data = JSON.parse(e.data);
                 const type = data.type || "signal";
-                
-                if (type === "signal") {
-                    addSignal(data);
-                    updateLastUpdate(data.horario);
-                } else if (type === "stats") {
-                    updateStats(data);
-                } else if (type === "remove_signal") {
-                    removeSignal(data.ativo);
-                
-                } else if (type === "telegram_connect_success") {
-                    console.log("Conexão com Telegram OK!");
-                    saveTelegramBtn.innerHTML = '<i class="fas fa-check"></i> Conectado!';
-                    setTimeout(() => {
-                        saveTelegramBtn.innerHTML = '<i class="fas fa-save"></i> Salvar e Testar Conexão';
-                    }, 3000);
-                
-                } else if (type === "telegram_connect_fail") {
-                    console.log("Falha na conexão com Telegram.");
-                    saveTelegramBtn.innerHTML = '<i class="fas fa-times"></i> Falha! Verifique os dados.';
-                    setTimeout(() => {
-                        saveTelegramBtn.innerHTML = '<i class="fas fa-save"></i> Salvar e Testar Conexão';
-                    }, 4000);
-                
-                } else if (type === "config_update") {
-                    console.log("Configuração atualizada pelo backend:", data.config);
-                    updateControls(data.config); 
-                
-                } else if (type === "mhi_analysis_complete") {
-                    if (mhiBtnLabel.textContent === "Busca Ativada!") {
-                         mhiBtnLabel.textContent = mhiBtnOriginalText;
-                    }
-                }
-            } catch(err) {
-                console.error("SSE parse error", err);
-                evtSource.close();
-                setTimeout(() => window.location.reload(), 2000);
-            }
+                if (type === "signal") { addSignal(data); updateLastUpdate(data.horario); } 
+                else if (type === "stats") { updateStats(data); } 
+                else if (type === "remove_signal") { removeSignal(data.ativo); } 
+                else if (type === "telegram_connect_success") { saveTelegramBtn.innerHTML = '<i class="fas fa-check"></i> Conectado!'; setTimeout(() => { saveTelegramBtn.innerHTML = '<i class="fas fa-save"></i> Salvar Telegram'; }, 3000); } 
+                else if (type === "telegram_connect_fail") { saveTelegramBtn.innerHTML = '<i class="fas fa-times"></i> Falha!'; setTimeout(() => { saveTelegramBtn.innerHTML = '<i class="fas fa-save"></i> Salvar Telegram'; }, 4000); } 
+                else if (type === "config_update") { updateControls(data.config); } 
+                else if (type === "mhi_analysis_complete") { if (mhiBtnLabel.textContent === "Busca Ativada!") mhiBtnLabel.textContent = mhiBtnOriginalText; }
+            } catch(err) { evtSource.close(); setTimeout(() => window.location.reload(), 2000); }
         };
 
         function addSignal(signal) {
             const welcomeCard = document.getElementById('welcomeCard');
             if (welcomeCard) { welcomeCard.remove(); }
             const directionClass = signal.direcao === "COMPRA" ? "buy" : "sell";
-            const directionText = signal.direcao === "COMPRA" ? "COMPRA" : "VENDA";
-            const confidence = signal.confianca || "N/A";
             const signalCard = document.createElement("div");
-            signalCard.className = `signal-card ${directionClass}`;
-            signalCard.id = `signal-${signal.ativo}-${Date.now()}`; 
+            signalCard.className = `signal-card ${directionClass} pulse`;
             signalCard.innerHTML = `
-                <div class="signal-header">
-                    <div class="asset">${signal.ativo}</div>
-                    <div class="direction ${directionClass}">${directionText}</div>
-                </div>
-                <div class="signal-meta">
-                    <div class="time"><i class="far fa-clock"></i> ${signal.horario}</div>
-                    <div class="confidence">
-                        <i class="fas fa-bullseye"></i> ${confidence}
-                    </div>
-                    <div class="origin"><i class="fas fa-cogs"></i> ${signal.origem}</div>
-                </div>
-                <div class="signal-text">
-                    ${signal.texto || "Sinal gerado pelo sistema de análise Quantum."}
-                </div>
+                <div class="signal-header"><div class="asset">${signal.ativo}</div><div class="direction ${directionClass}">${signal.direcao}</div></div>
+                <div class="signal-meta"><div class="time"><i class="far fa-clock"></i> ${signal.horario}</div><div class="confidence"><i class="fas fa-bullseye"></i> ${signal.confianca}</div><div class="origin"><i class="fas fa-cogs"></i> ${signal.origem}</div></div>
+                <div class="signal-text">${signal.texto || "Sinal gerado pelo sistema Quantum."}</div>
             `;
             signalList.insertBefore(signalCard, signalList.firstChild);
-            if (signalList.children.length > 30) {
-                signalList.removeChild(signalList.lastChild);
-            }
-            signalCard.classList.add('pulse');
+            if (signalList.children.length > 30) signalList.removeChild(signalList.lastChild);
             setTimeout(() => { signalCard.classList.remove('pulse'); }, 3000);
         }
 
         function removeSignal(ativo) {
             const signals = signalList.getElementsByClassName('signal-card');
             for (let i = 0; i < signals.length; i++) {
-                const signalAsset = signals[i].querySelector('.asset').textContent;
-                if (signalAsset === ativo) {
-                    signals[i].style.opacity = '0';
-                    signals[i].style.transform = 'translateX(-100%)';
-                    const cardToRemove = signals[i];
-                    setTimeout(() => {
-                        if (cardToRemove.parentNode) {
-                            cardToRemove.parentNode.removeChild(cardToRemove);
-                        }
-                    }, 500);
+                if (signals[i].querySelector('.asset').textContent === ativo) {
+                    signals[i].style.opacity = '0'; signals[i].style.transform = 'translateX(-100%)';
+                    const c = signals[i]; setTimeout(() => { if (c.parentNode) c.parentNode.removeChild(c); }, 500);
                     break;
                 }
             }
@@ -922,7 +934,9 @@
             if (config.mhi !== undefined) toggleMHI.checked = config.mhi;
             if (config.t5 !== undefined) toggleT5.checked = config.t5;
             if (config.p3v !== undefined) toggleP3V.checked = config.p3v; 
-            if (config.breakout_sma !== undefined) toggleBreakout.checked = config.breakout_sma; // <-- NOVO
+            if (config.breakout_sma !== undefined) toggleBreakout.checked = config.breakout_sma;
+            if (config.spike_volume !== undefined) toggleSpikeVolume.checked = config.spike_volume;
+            if (config.momentum_3 !== undefined) toggleMomentum3.checked = config.momentum_3;
             
             if (config.bollinger_std !== undefined) bollingerStdInput.value = config.bollinger_std;
             if (config.rsi_periodo !== undefined) rsiPeriodoInput.value = config.rsi_periodo;
@@ -935,104 +949,59 @@
             if (config.mhi_use_trend !== undefined) mhiUseTrendInput.checked = config.mhi_use_trend;
             if (config.mhi_trend_periodo !== undefined) mhiTrendPeriodoInput.value = config.mhi_trend_periodo;
             if (config.p3v_vwma_periodo !== undefined) p3vVwmaPeriodoInput.value = config.p3v_vwma_periodo;
-            
-            // --- NOVOS CONTROLES BREAKOUT ---
             if (config.breakout_sma_curta !== undefined) breakoutSmaCurtaInput.value = config.breakout_sma_curta;
             if (config.breakout_sma_longa !== undefined) breakoutSmaLongaInput.value = config.breakout_sma_longa;
             if (config.breakout_sma_body_mult !== undefined) breakoutSmaBodyMultInput.value = config.breakout_sma_body_mult;
             if (config.breakout_sma_avg_period !== undefined) breakoutSmaAvgPeriodInput.value = config.breakout_sma_avg_period;
-            
-            // --- FILTRO MACD GLOBAL REMOVIDO ---
+            if (config.spike_volume_periodo_media !== undefined) spikeVolumePeriodoMediaInput.value = config.spike_volume_periodo_media;
+            if (config.spike_volume_multiplicador !== undefined) spikeVolumeMultiplicadorInput.value = config.spike_volume_multiplicador;
+            if (config.spike_reversao_pavio_ratio !== undefined) spikeReversaoPavioRatioInput.value = config.spike_reversao_pavio_ratio;
+            if (config.spike_reversao_corpo_ratio !== undefined) spikeReversaoCorpoRatioInput.value = config.spike_reversao_corpo_ratio;
+            if (config.momentum_3_corpo_forte !== undefined) momentum3StrongInput.value = config.momentum_3_corpo_forte;
+            if (config.momentum_3_corpo_fraco !== undefined) momentum3WeakInput.value = config.momentum_3_corpo_fraco;
             if (config.rsi_use_macd !== undefined) toggleRsiUseMacd.checked = config.rsi_use_macd;
-            
-            if (config.valor_entrada_base !== undefined) {
-                valorEntradaInput.value = config.valor_entrada_base;
-                updateManagementDisplay(config.valor_entrada_base); 
-            }
-            
-            if (config.telegram_token) {
-                telegramTokenInput.value = config.telegram_token;
-            }
-            if (config.telegram_chat_id) {
-                telegramChatIdInput.value = config.telegram_chat_id;
-            }
+            if (config.valor_entrada_base !== undefined) valorEntradaInput.value = config.valor_entrada_base;
+            if (config.telegram_token) telegramTokenInput.value = config.telegram_token;
+            if (config.telegram_chat_id) telegramChatIdInput.value = config.telegram_chat_id;
             
             updateActiveStrategiesDisplay();
         }
         
         function loadInitialConfig() {
-            fetch('/api/get_config')
-                .then(response => response.json())
-                .then(config => {
-                    if (config.status === 'error') {
-                        window.location.href = '/';
-                        return;
-                    }
-                    
-                    console.log('Sua configuração pessoal foi carregada:', config);
-                    updateControls(config); 
-
-                    assetButtons.forEach(btn => {
-                        const asset = btn.getAttribute('data-asset');
-                        if (config.ativos && config.ativos.includes(asset)) {
-                            btn.classList.add('active');
-                        } else {
-                            btn.classList.remove('active');
-                        }
-                    });
-                    updateActiveAssetsDisplay();
-                })
-                .catch(err => {
-                    console.error('Erro ao carregar sua configuração:', err);
-                    window.location.href = '/'; 
+            fetch('/api/get_config').then(response => response.json()).then(config => {
+                if (config.status === 'error') { window.location.href = '/'; return; }
+                updateControls(config); 
+                assetButtons.forEach(btn => {
+                    const asset = btn.getAttribute('data-asset');
+                    if (config.ativos && config.ativos.includes(asset)) { btn.classList.add('active'); } 
+                    else { btn.classList.remove('active'); }
                 });
+                updateActiveAssetsDisplay();
+            }).catch(err => { window.location.href = '/'; });
         }
         
         function showHistory() {
-            fetch('/api/get_history')
-                .then(response => response.json())
-                .then(data => {
+            fetch('/api/get_history').then(response => response.json()).then(data => {
                     if (data.status === 'error') { window.location.href = '/'; return; }
-                    
                     historyListBody.innerHTML = '';
                     if (data.history && data.history.length > 0) {
                         data.history.forEach(item => {
                             const isWin = item.resultado.includes('WIN');
                             const resClass = isWin ? 'res-win' : 'res-loss';
-                            const historyRow = document.createElement('tr');
-                            historyRow.innerHTML = `
-                                <td style="color: var(--gray); font-size: 0.85rem;">${item.timestamp}</td>
-                                <td>${item.par.toUpperCase()}</td>
-                                <td>${item.origem}</td>
-                                <td class="${resClass}">${item.resultado}</td>
-                            `;
-                            historyListBody.appendChild(historyRow);
+                            historyListBody.innerHTML += `<tr><td style="color:var(--gray);font-size:0.85rem;">${item.timestamp}</td><td>${item.par.toUpperCase()}</td><td>${item.origem}</td><td class="${resClass}">${item.resultado}</td></tr>`;
                         });
-                    } else {
-                        historyListBody.innerHTML = '<tr><td colspan="4" style="color: var(--gray); text-align: center; padding: 20px;">Nenhum histórico de resultados ainda.</td></tr>';
-                    }
+                    } else { historyListBody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;">Sem histórico.</td></tr>'; }
                     
-                    statsTableBody.innerHTML = '';
-                    let totalWins = 0; let totalLosses = 0;
+                    statsTableBody.innerHTML = ''; let totalWins = 0; let totalLosses = 0;
                     if (data.stats && Object.keys(data.stats).length > 0) {
                         for (const strategy in data.stats) {
                             const stats = data.stats[strategy];
                             const wins = (stats['WIN ✅'] || 0) + (stats['WIN NA PROTEÇÃO 1 ✅'] || 0) + (stats['WIN NA PROTEÇÃO 2 ✅'] || 0);
                             const losses = (stats['LOSS ❌'] || 0);
                             totalWins += wins; totalLosses += losses;
-                            const row = document.createElement('tr');
-                            row.innerHTML = `
-                                <td>${strategy}</td>
-                                <td class="win">${stats['WIN ✅'] || 0}</td>
-                                <td class="win">${stats['WIN NA PROTEÇÃO 1 ✅'] || 0}</td>
-                                <td class="win">${stats['WIN NA PROTEÇÃO 2 ✅'] || 0}</td>
-                                <td class="loss">${losses}</td>
-                            `;
-                            statsTableBody.appendChild(row);
+                            statsTableBody.innerHTML += `<tr><td>${strategy}</td><td class="win">${stats['WIN ✅']||0}</td><td class="win">${stats['WIN NA PROTEÇÃO 1 ✅']||0}</td><td class="win">${stats['WIN NA PROTEÇÃO 2 ✅']||0}</td><td class="loss">${losses}</td></tr>`;
                         }
-                    } else {
-                        statsTableBody.innerHTML += '<tr><td colspan="5" style="color: var(--gray); text-align: center; padding: 20px;">Nenhuma estatística disponível.</td></tr>';
-                    }
+                    } else { statsTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;">Sem stats.</td></tr>'; }
                     
                     const totalOps = totalWins + totalLosses;
                     const assertividade = (totalOps > 0) ? (totalWins / totalOps) * 100 : 0;
@@ -1040,26 +1009,12 @@
                     document.getElementById('modalTotalWins').textContent = totalWins;
                     document.getElementById('modalTotalLosses').textContent = totalLosses;
                     document.getElementById('modalAssertividade').textContent = `${assertividade.toFixed(2)}%`;
-                    
                     historyModal.style.display = 'block';
-                })
-                .catch(err => {
-                    console.error('Erro ao buscar histórico:', err);
-                });
+            });
         }
-
-        function updateLastUpdate(horario) {
-            if (horario) {
-                lastUpdateEl.textContent = horario;
-            }
-        }
-
-        evtSource.onerror = function(e) {
-            console.error("SSE error. Reconectando...", e);
-            evtSource.close();
-            setTimeout(() => window.location.reload(), 5000);
-        };
-
+        
+        function updateLastUpdate(horario) { if (horario) lastUpdateEl.textContent = horario; }
+        evtSource.onerror = function(e) { evtSource.close(); setTimeout(() => window.location.reload(), 5000); };
         loadInitialConfig();
     </script>
 </body>
